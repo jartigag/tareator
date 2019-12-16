@@ -61,11 +61,12 @@ def write_tasks_file():
     with open(tasks_file) as inf, open("{}.tmp".format(tasks_file),"w") as outf:
         lines = inf.readlines()
         for i_line,line in enumerate(lines):
-            task = line.strip()[3:].strip()
-            first_chars = line.strip()[:3]
             for i_t,t in enumerate(tasks):
+                n = len(mark[t['status']])
+                task = line.strip()[n:].strip()
+                first_chars = line.strip()[:n]
                 if t['task']==task:
-                    outf.write(line.replace(first_chars, mark(t['status'])))
+                    outf.write(line.replace( first_chars, mark[t['status']]) )
                     break
                 elif i_t==len(tasks)-1:
                     outf.write(line)
@@ -74,7 +75,7 @@ def write_tasks_file():
 def add_task(task):
     tasks.append( {'task': task, 'status': "to-do" } )
     with open(tasks_file,"a") as f:
-        f.write(f"[ ] {task}\n")
+        f.write(f"{mark['to-do']} {task}\n")
     reload_screen()
 
 def mark_as_done(i):
@@ -110,6 +111,11 @@ if __name__ == '__main__':
                 print(help_msg)
             elif opt=="hh":
                 print(hhelp_msg)
+            elif opt.isdigit():
+                if int(opt)<len(tasks):
+                    mark_as_done( int(opt) )
+                else:
+                    print("número inválido")
             elif len(opt)>1:
                 if opt[0]=="*":
                     add_task( opt[1:].strip() )
@@ -123,11 +129,6 @@ if __name__ == '__main__':
                         print("número inválido")
                 else:
                     reload_screen()
-            elif opt.isdigit():
-                if int(opt)<len(tasks):
-                    mark_as_done( int(opt) )
-                else:
-                    print("número inválido")
             else:
                 reload_screen()
         except EOFError:
