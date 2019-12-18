@@ -84,18 +84,18 @@ def add_task(task):
     reload_screen()
     return f"[ ] {task.strip()}"
 
-def mark_as_done(i):
+def mark_as_done(i, time):
     if tasks[i]['status'] is not "done":
         tasks[i]['status'] = "done"
         write_tasks_file()
         reload_screen()
-        print(f"[x] has marcado '{tasks[i]['task'].strip()}' como hecha")
+        print(f"[x] has marcado '{tasks[i]['task'].strip()}' como hecha a las {time}")
         return f"[x] {tasks[i]['task'].strip()}"
     else:
         print(f"[!] '{tasks[i]['task'].strip()}' ya está marcada como hecha")
         return False
 
-def mark_as_wip(i):
+def mark_as_wip(i, time):
     if tasks[i]['status']=="to-do":
         for j,t in enumerate(tasks):
             if tasks[j]['status']=="wip":
@@ -103,7 +103,7 @@ def mark_as_wip(i):
         tasks[i]['status'] = "wip"
         write_tasks_file()
         reload_screen()
-        print(f"[/] has marcado '{tasks[i]['task'].strip()}' como en progreso")
+        print(f"[/] has marcado '{tasks[i]['task'].strip()}' como en progreso a las {time}")
         return f"[/] {tasks[i]['task'].strip()}"
     elif tasks[i]['status']=="wip":
         print(f"[!] '{tasks[i]['task'].strip()}' ya está marcada como en progreso")
@@ -126,7 +126,8 @@ if __name__ == '__main__':
                 print(hhelp_msg)
             elif opt.isdigit():
                 if int(opt)<len(tasks):
-                    action = mark_as_done( int(opt) )
+                    action = mark_as_done( int(opt), now.split('T')[1] )
+                    #                                 ^^^^^ example: 09:30:00
                 else:
                     print("número inválido")
             elif len(opt)>1:
@@ -135,7 +136,7 @@ if __name__ == '__main__':
                 elif opt[0]==".":
                     if opt[1:].isdigit():
                         if int(opt[1:])<len(tasks):
-                            action = mark_as_wip( int(opt[1:]) )
+                            action = mark_as_wip( int(opt[1:]), now.split('T')[1] )
                         else:
                             print("número inválido")
                     else:
