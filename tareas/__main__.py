@@ -5,10 +5,11 @@
 #TODO: improve help_msg
 
 import os, sys
+from datetime import datetime
 
 tasks_file='README.md'
-mark = { # define the marks you want, but
-         # keep the same length on everyone
+logbook_file='logbook.csv'
+mark = {
     'done': '- [x]',
     'wip': '- [/]',
     'to-do': '- [ ]'
@@ -19,7 +20,7 @@ help_msg = """\033[1mtareas\033[0m responde interactivamente a lo que escribas. 
 \033[1m*una tarea pendiente\033[0m  añade "una tarea pendiente" a la lista de tareas
 
 \033[1m1\033[0m                     marca la tarea pendiente 1 como hecha
-\033[1m.1\033[0m                    marca la tarea 1 como en progreso
+\033[1m.5\033[0m                    marca la tarea 5 como en progreso (si había otra en progreso, esa vuelve a pendiente)
 
 escribe 'hh' para mostrar la ayuda más detallada.
 """
@@ -72,6 +73,10 @@ def write_tasks_file():
                     outf.write(line)
     os.system("mv {}.tmp {}".format(tasks_file, tasks_file))
 
+def write_logbook_file(action,time):
+    with open(logbook_file,"w") as f:
+        f.write(f"{time},{action}\n")
+
 def add_task(task):
     tasks.append( {'task': task, 'status': "to-do" } )
     with open(tasks_file,"a") as f:
@@ -89,15 +94,15 @@ def mark_as_done(i):
 
 def mark_as_wip(i):
     if tasks[i]['status']=="to-do":
-        for t in tasks:
-            if t['task']=="wip":
-                t['task'] = "to-do" # only one "wip" task at a time
+        for j,t in enumerate(tasks):
+            if tasks[j]['status']=="wip":
+                tasks[j]['status'] = "to-do" # only one "wip" task at a time
         tasks[i]['status'] = "wip"
         write_tasks_file()
         reload_screen()
-        print(f"[/] has marcado '{tasks[i]['task'].strip()}' como \"en progreso\"")
+        print(f"[/] has marcado '{tasks[i]['task'].strip()}' como en progreso")
     elif tasks[i]['status']=="wip":
-        print(f"[!] '{tasks[i]['task'].strip()}' ya está marcada como \"en progreso\"")
+        print(f"[!] '{tasks[i]['task'].strip()}' ya está marcada como en progreso")
     elif tasks[i]['status']=="done":
         print(f"[!] '{tasks[i]['task'].strip()}' ya está marcada como hecha")
 
