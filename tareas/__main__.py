@@ -82,6 +82,7 @@ def add_task(task):
     with open(tasks_file,"a") as f:
         f.write(f"{mark['to-do']} {task}\n")
     reload_screen()
+    return f"[ ] {task.strip()}"
 
 def mark_as_done(i):
     if tasks[i]['status'] is not "done":
@@ -89,8 +90,10 @@ def mark_as_done(i):
         write_tasks_file()
         reload_screen()
         print(f"[x] has marcado '{tasks[i]['task'].strip()}' como hecha")
+        return f"[x] {tasks[i]['task'].strip()}"
     else:
         print(f"[!] '{tasks[i]['task'].strip()}' ya está marcada como hecha")
+        return False
 
 def mark_as_wip(i):
     if tasks[i]['status']=="to-do":
@@ -101,24 +104,29 @@ def mark_as_wip(i):
         write_tasks_file()
         reload_screen()
         print(f"[/] has marcado '{tasks[i]['task'].strip()}' como en progreso")
+        return f"[/] {tasks[i]['task'].strip()}"
     elif tasks[i]['status']=="wip":
         print(f"[!] '{tasks[i]['task'].strip()}' ya está marcada como en progreso")
+        return False
     elif tasks[i]['status']=="done":
         print(f"[!] '{tasks[i]['task'].strip()}' ya está marcada como hecha")
+        return False
 
 if __name__ == '__main__':
     reload_screen()
     while True:
         print("\033[1m{}\033[0m {}".format("qué estás haciendo?","('h' para mostrar la ayuda, Intro para recargar)"))
         try:
+            action = False
             opt = input(">> ")
+            now = datetime.now().replace(microsecond=0).isoformat()
             if opt=="h":
                 print(help_msg)
             elif opt=="hh":
                 print(hhelp_msg)
             elif opt.isdigit():
                 if int(opt)<len(tasks):
-                    mark_as_done( int(opt) )
+                    action = mark_as_done( int(opt) )
                 else:
                     print("número inválido")
             elif len(opt)>1:
@@ -127,7 +135,7 @@ if __name__ == '__main__':
                 elif opt[0]==".":
                     if opt[1:].isdigit():
                         if int(opt[1:])<len(tasks):
-                            mark_as_wip( int(opt[1:]) )
+                            action = mark_as_wip( int(opt[1:]) )
                         else:
                             print("número inválido")
                     else:
@@ -136,6 +144,8 @@ if __name__ == '__main__':
                     reload_screen()
             else:
                 reload_screen()
+            if action:
+                write_logbook_file( action, now )
         except EOFError:
             print()
             sys.exit()
