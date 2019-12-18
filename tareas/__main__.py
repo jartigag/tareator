@@ -22,10 +22,12 @@ help_msg = """\033[1mtareas\033[0m responde interactivamente a lo que escribas. 
 \033[1m1\033[0m                     marca la tarea pendiente 1 como hecha
 \033[1m.5\033[0m                    marca la tarea 5 como en progreso (si había otra en progreso, esa vuelve a pendiente)
 
+\033[1mlo que acabo de hacer\033[0m añade "lo que acabo de hacer" al registro de acciones
+
 escribe 'hh' para mostrar la ayuda más detallada.
 """
 
-hhelp_msg = """tareas v0.1, de @jartigag
+hhelp_msg = """tareas v0.2, de @jartigag
 
 ...
 
@@ -74,7 +76,7 @@ def write_tasks_file():
     os.system("mv {}.tmp {}".format(tasks_file, tasks_file))
 
 def write_logbook_file(action,time):
-    with open(logbook_file,"w") as f:
+    with open(logbook_file,"a") as f:
         f.write(f"{time},{action}\n")
 
 def add_task(task):
@@ -112,6 +114,16 @@ def mark_as_wip(i, time):
         print(f"[!] '{tasks[i]['task'].strip()}' ya está marcada como hecha")
         return False
 
+def confirm_action(action, time):
+    confirmation = input(f"registrar acción '{action}'? [S/n]").lower()
+    if confirmation.startswith('s') or confirmation.startswith('y') or confirmation=="":
+        reload_screen()
+        print(f"[+] has registrado '{action}' a las {time}")
+        return f"[+] {action}"
+    else:
+        print("[-] no añadido")
+        return False
+
 if __name__ == '__main__':
     reload_screen()
     while True:
@@ -142,7 +154,7 @@ if __name__ == '__main__':
                     else:
                         print("número inválido")
                 else:
-                    reload_screen()
+                    action = confirm_action( opt, now.split('T')[1] )
             else:
                 reload_screen()
             if action:

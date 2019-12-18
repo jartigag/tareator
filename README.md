@@ -22,7 +22,7 @@ Se ha orientado a escribir las entradas de un time-tracker de forma natural, con
 ## Registro temporal: logbook
 
 - [x] Generar `logbook.csv`
-- [ ] Añadir acciones (no tareas) que van directamente a `logbook.csv`
+- [x] Añadir acciones (no tareas) que van directamente a `logbook.csv`
 
 ## Publicación en time-tracker
 
