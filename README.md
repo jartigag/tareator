@@ -26,7 +26,7 @@ Se ha orientado a escribir las entradas de un time-tracker de forma natural, con
 
 ## Publicación en time-tracker
 
-- [ ] Generar `commit.tmp`
+- [x] Generar `commit.tmp`
 - [ ] #alias
 - [ ] Redondear con bloques de 15 mins
 - [ ] UI de revisión antes de confirmar commit
