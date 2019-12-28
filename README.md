@@ -5,13 +5,13 @@ Pretende ser:
 - Fácil de modificar
 - Modular y extensible
 
-Además, produce un fichero CSV en el que se registra cuándo se ha realizado cada acción, permitiendo analizarlas después con otras herramientas.
+Se ha orientado a que, de su uso cotidiano, se extraiga el contenido para completar automáticamente las entradas de un time-tracker.
 
-Se ha orientado a escribir las entradas de un time-tracker de forma natural, con los eventos generados al completar la lista de tareas.
+Además, produce un fichero CSV en el que se registra cuándo se ha realizado cada acción, sobre el cual se podrá hacer un análisis posterior con otras herramientas.
 
 # Tareas
 
-- [ ] Elegir nombre
+- [/] Elegir nombre
 
 ## Funcionalidades básicas
 
@@ -27,7 +27,7 @@ Se ha orientado a escribir las entradas de un time-tracker de forma natural, con
 ## Publicación en time-tracker
 
 - [x] Generar `commit.tmp`
-- [ ] #alias
+- [x] #alias
 - [ ] Redondear con bloques de 15 mins
 - [ ] UI de revisión antes de confirmar commit
 

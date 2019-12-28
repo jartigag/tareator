@@ -6,6 +6,7 @@
 
 import os, sys
 from datetime import datetime
+import string
 
 tasks_file='README.md'
 logbook_file='logbook.csv'
@@ -27,7 +28,7 @@ help_msg = """\033[1mtareas\033[0m responde interactivamente a lo que escribas. 
 escribe 'hh' para mostrar la ayuda más detallada.
 """
 
-hhelp_msg = """tareas v0.3, de @jartigag
+hhelp_msg = """tareas v0.4, de @jartigag
 
 ...
 
@@ -124,8 +125,10 @@ def confirm_action(action, dtime):
         print("[-] no añadido")
         return False
 
-def logbook2shptime(note, start_time, end_time):
-    return f'shptime --dry-run add -n Otros -t "{note}" -s { start_time.isoformat() } -e { end_time.isoformat() }'
+def logbook2shptime(project, note, start_time, end_time):
+    if not project:
+        project = 'Otros' # project by default
+    return f'shptime --dry-run add -n {project} -t "{note}" -s { start_time.isoformat() } -e { end_time.isoformat() }'
 
 def push_commit(commit_file):
     #TODO: improve exceptions handling
@@ -134,6 +137,17 @@ def push_commit(commit_file):
         os.system(f"rm {commit_file}")
     except Exception:
         print("[-] error")
+
+def alias_from_text(text):
+    aliases = [
+        ''.join(c for c in word if c not in string.punctuation.replace("-",""))
+    # ^^ filter every punctuation symbol except "-" (an alias may contain it) ^^
+         for word in text.split() if word.startswith("#")
+    ]
+    if len(aliases)>0:
+        return aliases[0]
+    else:
+        return False
 
 def edit_commit(dtime):
     actions = []
@@ -148,8 +162,10 @@ def edit_commit(dtime):
                         start_time = datetime.today().replace(hour=9, minute=0, second=0, microsecond=0) #TODO? use "mark" or my own start/end marks ?
                         for action in actions:
                             arr_action = action.replace('"',"'").replace('`',"'").split(',') #TODO: load from csv and strip quotes properly
+                            note = arr_action[1]
+                            project = alias_from_text(note)
                             end_time = datetime.strptime(arr_action[0], '%Y-%m-%dT%H:%M:%S')
-                            cf.write(f"{ logbook2shptime( arr_action[1], start_time, end_time ) }\n")
+                            cf.write(f"{ logbook2shptime( project, note, start_time, end_time ) }\n")
                             start_time = end_time # so next action starts on the end_time of this action
                     os.system( "vim {}".format(commit_file) )
                     #os.system( "edit {0} || vim {0}".format(commit_file) ) #TODO: what's the best way of chooosing user's preferred editor?
