@@ -6,7 +6,8 @@
 
 import os, sys
 from datetime import datetime
-import string
+from .timetracker import edit_commit, push_commit, logbook2shptime, alias_from_text
+from .timetracker import prompt_commands, complete_commands
 
 tasks_file='README.md'
 logbook_file='logbook.csv'
@@ -16,7 +17,7 @@ mark = {
     'to-do': '- [ ]'
 }
 
-help_msg = """\033[1mtareas\033[0m responde interactivamente a lo que escribas. por ejemplo:
+help_msg = """la herramienta "tareas" responde interactivamente a lo que escribas. por ejemplo:
 
 \033[1m*una tarea pendiente\033[0m  añade "una tarea pendiente" a la lista de tareas
 
@@ -24,6 +25,8 @@ help_msg = """\033[1mtareas\033[0m responde interactivamente a lo que escribas. 
 \033[1m.5\033[0m                    marca la tarea 5 como en progreso (si había otra en progreso, esa vuelve a pendiente)
 
 \033[1mlo que acabo de hacer\033[0m añade "lo que acabo de hacer" al registro de acciones
+
+\033[1m/commit\033[0m               revisa y publica las últimas tareas con shptime
 
 escribe 'hh' para mostrar la ayuda más detallada.
 """
@@ -125,56 +128,6 @@ def confirm_action(action, dtime):
         print("[-] no añadido")
         return False
 
-def logbook2shptime(project, note, start_time, end_time):
-    if not project:
-        project = 'Otros' # project by default
-    return f'shptime --dry-run add -n {project} -t "{note}" -s { start_time.isoformat() } -e { end_time.isoformat() }'
-
-def push_commit(commit_file):
-    #TODO: improve exceptions handling
-    try:
-        os.system(f"sh {commit_file}") #TODO: bash? sh?
-        os.system(f"rm {commit_file}")
-    except Exception:
-        print("[-] error")
-
-def alias_from_text(text):
-    aliases = [
-        ''.join(c for c in word if c not in string.punctuation.replace("-",""))
-    # ^^ filter every punctuation symbol except "-" (an alias may contain it) ^^
-         for word in text.split() if word.startswith("#")
-    ]
-    if len(aliases)>0:
-        return aliases[0]
-    else:
-        return False
-
-def edit_commit(dtime):
-    actions = []
-    commit_file = "commit.tmp"
-    with open(logbook_file,"r+") as f:
-        for line in reversed( f.read().splitlines() ): # reading from most recent lines
-            if not line.startswith('--committed'): # 1. get actions until "--commited--" line found:
-                actions.append(line)
-            else:
-                if len(actions)>0:                   # 2. dump actions on commit_file, edit it and push it:
-                    with open(commit_file,"w") as cf:
-                        start_time = datetime.today().replace(hour=9, minute=0, second=0, microsecond=0) #TODO? use "mark" or my own start/end marks ?
-                        for action in actions:
-                            arr_action = action.replace('"',"'").replace('`',"'").split(',') #TODO: load from csv and strip quotes properly
-                            note = arr_action[1]
-                            project = alias_from_text(note)
-                            end_time = datetime.strptime(arr_action[0], '%Y-%m-%dT%H:%M:%S')
-                            cf.write(f"{ logbook2shptime( project, note, start_time, end_time ) }\n")
-                            start_time = end_time # so next action starts on the end_time of this action
-                    os.system( "vim {}".format(commit_file) )
-                    #os.system( "edit {0} || vim {0}".format(commit_file) ) #TODO: what's the best way of chooosing user's preferred editor?
-                    push_commit(commit_file)
-                    f.write(f"--committed on { dtime.isoformat() } until here--\n")
-                else:
-                    print("[-] nada para hacer commit")
-                break
-
 if __name__ == '__main__':
     reload_screen()
     while True:
@@ -182,7 +135,10 @@ if __name__ == '__main__':
         try:
             action = False
             now = datetime.now().replace(microsecond=0)
-            opt = input(">> ")
+            try:
+                opt = prompt_commands()
+            except ImportError:
+                opt = complete_commands()
             if opt=="h":
                 print(help_msg)
             elif opt=="hh":
@@ -192,8 +148,8 @@ if __name__ == '__main__':
                     action = mark_as_done( int(opt), now )
                 else:
                     print("número inválido")
-            elif opt=="commit":
-                edit_commit( now )
+            elif opt=="/commit":
+                edit_commit( now, logbook_file )
             elif len(opt)>1:
                 if opt[0]=="*":
                     add_task( opt[1:].strip() )

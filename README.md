@@ -29,7 +29,7 @@ Además, produce un fichero CSV en el que se registra cuándo se ha realizado ca
 - [x] Generar `commit.tmp`
 - [x] #alias
 - [ ] Redondear con bloques de 15 mins
-- [ ] UI de revisión antes de confirmar commit
+- [ ] Proporcionar `commit.template`
 
 ## Funcionalidades extra
 
