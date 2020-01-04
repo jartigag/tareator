@@ -2,17 +2,15 @@ import os
 import string
 from datetime import datetime
 
-#TODO: edit_logbook() ?
-
 def logbook2shptime(project, note, start_time, end_time):
     if not project:
         project = 'Otros' # project by default
     return f'shptime --dry-run add -n {project} -t "{note}" -s { start_time.isoformat() } -e { end_time.isoformat() }'
 
 def push_commit(commit_file):
-    #TODO: improve exceptions handling
+    #TODO: may improve exceptions handling
     try:
-        os.system(f"sh {commit_file}") #TODO: bash? sh?
+        os.system(f"sh {commit_file}")
         os.system(f"rm {commit_file}")
     except Exception:
         print("[-] error")
@@ -38,16 +36,16 @@ def edit_commit(dtime, logbook_file):
             else:
                 if len(actions)>0:                   # 2. dump actions on commit_file, edit it and push it:
                     with open(commit_file,"w") as cf:
-                        start_time = datetime.today().replace(hour=9, minute=0, second=0, microsecond=0) #TODO? use "mark" or my own start/end marks ?
-                        for action in actions:
+                        start_time = datetime.today().replace(hour=9, minute=0, second=0, microsecond=0) #TODO: /edit_template
+                        for action in reversed(actions): # actions have been added from newest to oldest,
+                                                         # so now will be dumped to commit_file in chronological order (from newest to oldest)
                             arr_action = action.replace('"',"'").replace('`',"'").split(',') #TODO: load from csv and strip quotes properly
                             note = arr_action[1]
                             project = alias_from_text(note)
                             end_time = datetime.strptime(arr_action[0], '%Y-%m-%dT%H:%M:%S')
                             cf.write(f"{ logbook2shptime( project, note, start_time, end_time ) }\n")
                             start_time = end_time # so next action starts on the end_time of this action
-                    os.system( "vim {}".format(commit_file) )
-                    #os.system( "edit {0} || vim {0}".format(commit_file) ) #TODO: what's the best way of chooosing user's preferred editor?
+                    os.system( "editor {}".format(commit_file) ) #tip: editor can be set with `$ sudo update-alternatives --config editor` or `export EDITOR="vim"` in .bashrc
                     push_commit(commit_file)
                     f.write(f"--committed on { dtime.isoformat() } until here--\n")
                 else:
@@ -76,5 +74,5 @@ def complete_commands():
     readline.set_completer(completer)
     readline.parse_and_bind("tab: complete")
     readline.set_completer_delims('') # so '/' insde commands works correctly
-    opt = input(">>> ")
+    opt = input(">> ")
     return opt

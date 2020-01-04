@@ -6,8 +6,7 @@
 
 import os, sys
 from datetime import datetime
-from .timetracker import edit_commit, push_commit, logbook2shptime, alias_from_text
-from .timetracker import prompt_commands, complete_commands
+from .timetracker import edit_commit, prompt_commands, complete_commands
 
 tasks_file='README.md'
 logbook_file='logbook.csv'
@@ -112,8 +111,9 @@ def mark_as_wip(i, dtime):
         print(f"[/] has marcado '{tasks[i]['task'].strip()}' como en progreso a las { dtime.time().isoformat() }")
         return f"[/] {tasks[i]['task'].strip()}"
     elif tasks[i]['status']=="wip":
-        print(f"[!] '{tasks[i]['task'].strip()}' ya está marcada como en progreso")
-        return False
+        print(f"[!] aunque '{tasks[i]['task'].strip()}' ya estaba marcada como en progreso, se registrará esta acción con la hora actual")
+        print(f"[/] has marcado '{tasks[i]['task'].strip()}' como en progreso a las { dtime.time().isoformat() }")
+        return f"[/] {tasks[i]['task'].strip()}"
     elif tasks[i]['status']=="done":
         print(f"[!] '{tasks[i]['task'].strip()}' ya está marcada como hecha")
         return False
@@ -134,11 +134,11 @@ if __name__ == '__main__':
         print("\033[1m{}\033[0m {}".format("qué estás haciendo?","('h' para mostrar la ayuda, Intro para recargar)"))
         try:
             action = False
-            now = datetime.now().replace(microsecond=0)
             try:
                 opt = prompt_commands()
             except ImportError:
                 opt = complete_commands()
+            now = datetime.now().replace(microsecond=0)
             if opt=="h":
                 print(help_msg)
             elif opt=="hh":
