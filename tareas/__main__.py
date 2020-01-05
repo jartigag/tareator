@@ -8,8 +8,8 @@ import os, sys
 from datetime import datetime
 from .timetracker import edit_commit, prompt_commands, complete_commands
 
-tasks_file='README.md'
-logbook_file='logbook.csv'
+tasks_file = 'README.md'
+register_file = 'register.csv'
 mark = {
     'done': '- [x]',
     'wip': '- [/]',
@@ -18,14 +18,15 @@ mark = {
 
 help_msg = """la herramienta "tareas" responde interactivamente a lo que escribas. por ejemplo:
 
-\033[1m*una tarea pendiente\033[0m  añade "una tarea pendiente" a la lista de tareas
+\033[1mlo que acabo de hacer\033[0m añade "lo que acabo de hacer" al registro de acciones
 
+\033[1m*una tarea pendiente\033[0m  añade "una tarea pendiente" a la lista de tareas
 \033[1m1\033[0m                     marca la tarea pendiente 1 como hecha
 \033[1m.5\033[0m                    marca la tarea 5 como en progreso (si había otra en progreso, esa vuelve a pendiente)
 
-\033[1mlo que acabo de hacer\033[0m añade "lo que acabo de hacer" al registro de acciones
-
 \033[1m/commit\033[0m               revisa y publica las últimas tareas con shptime
+\033[1m/intervalos\033[0m           edita los intervalos por defecto de tu jornada laboral
+\033[1m/registro\033[0m             imprime las últimas acciones registradas
 
 escribe 'hh' para mostrar la ayuda más detallada.
 """
@@ -78,8 +79,8 @@ def write_tasks_file():
                     outf.write(line)
     os.system("mv {}.tmp {}".format(tasks_file, tasks_file))
 
-def write_logbook_file(action, dtime):
-    with open(logbook_file,"a") as f:
+def write_register_file(action, dtime):
+    with open(register_file,"a") as f:
         f.write(f"{ dtime.isoformat() },{action}\n") #TODO: dump to csv properly
 
 def add_task(task):
@@ -149,7 +150,11 @@ if __name__ == '__main__':
                 else:
                     print("número inválido")
             elif opt=="/commit":
-                edit_commit( now, logbook_file )
+                edit_commit( now, register_file )
+            elif opt=="/intervalos":
+                os.system( "editor intervals.template" ) #tip: editor can be set with `$ sudo update-alternatives --config editor` or `export EDITOR="vim"` in .bashrc
+            elif opt=="/registro":
+                print_register( register_file )
             elif len(opt)>1:
                 if opt[0]=="*":
                     add_task( opt[1:].strip() )
@@ -166,7 +171,7 @@ if __name__ == '__main__':
             else:
                 reload_screen()
             if action:
-                write_logbook_file( action, now )
+                write_register_file( action, now )
         except EOFError:
             print()
             sys.exit()

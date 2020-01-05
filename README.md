@@ -11,7 +11,7 @@ Además, produce un fichero CSV en el que se registra cuándo se ha realizado ca
 
 # Tareas
 
-- [/] Elegir nombre
+- [ ] Elegir nombre
 
 ## Funcionalidades básicas
 
@@ -19,17 +19,17 @@ Además, produce un fichero CSV en el que se registra cuándo se ha realizado ca
 - [x] Marcar tareas como completadas
 - [x] Marcar una tarea como "en progreso"
 
-## Registro temporal: logbook
+## Registro temporal
 
-- [x] Generar `logbook.csv`
-- [x] Añadir acciones (no tareas) que van directamente a `logbook.csv`
+- [x] Generar `register.csv`
+- [x] Añadir acciones (no tareas) que van directamente a `register.csv`
 
 ## Publicación en time-tracker
 
 - [x] Generar `commit.tmp`
 - [x] #alias
+- [/] Editar `intervals.template`
 - [ ] Redondear con bloques de 15 mins
-- [ ] Proporcionar `commit.template`
 
 ## Funcionalidades extra
 
