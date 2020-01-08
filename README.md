@@ -9,9 +9,9 @@ Se ha orientado a que, de su uso cotidiano, se extraiga el contenido para comple
 
 Además, produce un fichero CSV en el que se registra cuándo se ha realizado cada acción, sobre el cual se podrá hacer un análisis posterior con otras herramientas.
 
-# Tareas
+# tareator
 
-- [ ] Elegir nombre
+- [x] Elegir nombre
 
 ## Funcionalidades básicas
 
@@ -28,7 +28,7 @@ Además, produce un fichero CSV en el que se registra cuándo se ha realizado ca
 
 - [x] Generar `commit.tmp`
 - [x] #alias
-- [/] Editar `intervals.template`
+- [x] Editar `intervals.template`
 - [ ] Redondear con bloques de 15 mins
 
 ## Funcionalidades extra

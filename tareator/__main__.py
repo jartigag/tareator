@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-#TODO: clearer use of print() and print("\033[1m \033[0m")
-#TODO: improve help_msg
-
 import os, sys
 from datetime import datetime
 from .timetracker import edit_commit, prompt_commands, complete_commands
@@ -16,22 +13,25 @@ mark = {
     'to-do': '- [ ]'
 }
 
-help_msg = """la herramienta "tareas" responde interactivamente a lo que escribas. por ejemplo:
+def bold(text): return f"\033[1m{text}\033[0m"
 
-\033[1mlo que acabo de hacer\033[0m añade "lo que acabo de hacer" al registro de acciones
+help_msg = f"""la herramienta "tareator" responde interactivamente a lo que escribas. por ejemplo:
 
-\033[1m*una tarea pendiente\033[0m  añade "una tarea pendiente" a la lista de tareas
-\033[1m1\033[0m                     marca la tarea pendiente 1 como hecha
-\033[1m.5\033[0m                    marca la tarea 5 como en progreso (si había otra en progreso, esa vuelve a pendiente)
+{bold('lo que acabo de hacer')} añade "lo que acabo de hacer" al registro de acciones
 
-\033[1m/commit\033[0m               revisa y publica las últimas tareas con shptime
-\033[1m/intervalos\033[0m           edita los intervalos por defecto de tu jornada laboral
-\033[1m/registro\033[0m             imprime las últimas acciones registradas
+{bold('*una tarea pendiente')}  añade "una tarea pendiente" a la lista de tareas
+{bold('1')}                     marca la tarea pendiente 1 como hecha
+{bold('.5')}                    marca la tarea 5 como en progreso (si había otra en progreso, esa vuelve a pendiente)
+
+{bold('/commit')}               revisa y publica las últimas tareas con shptime
+{bold('/intervalos')}           edita los intervalos por defecto de tu jornada laboral
+{bold('/registro')}             imprime las últimas acciones registradas
+{bold('/clear')}                elimina las tareas completadas
 
 escribe 'hh' para mostrar la ayuda más detallada.
 """
 
-hhelp_msg = """tareas v0.4, de @jartigag
+hhelp_msg = """tareator v0.5, de @jartigag
 
 ...
 
@@ -48,7 +48,7 @@ def reload_screen():
 def read_tasks_file():
     tasks.clear()
     print()
-    print("\033[1m[[ lista de TAREAS ]]\033[0m\n")
+    print(f"{bold('[[ lista de TAREATOR ]]')}\n")
     with open(tasks_file) as f:
         for line in f.read().splitlines(): # ("\n" removed)
             status = "Error"
@@ -129,10 +129,21 @@ def confirm_action(action, dtime):
         print("[-] no añadido")
         return False
 
+def clear_dones():
+    with open(tasks_file) as readf, open(f"{tasks_file}.tmp","w") as writef:
+        for line in readf.readlines():
+            if not line.startswith(mark['done']):
+                writef.write(line)
+        os.system(f"mv {tasks_file}.tmp {tasks_file}")
+
+def print_register(register_file):
+    #TODO
+    pass
+
 if __name__ == '__main__':
     reload_screen()
     while True:
-        print("\033[1m{}\033[0m {}".format("qué estás haciendo?","('h' para mostrar la ayuda, Intro para recargar)"))
+        print(f"{bold('qué estás haciendo?')} ('h' para mostrar la ayuda, Intro para recargar)")
         try:
             action = False
             try:
@@ -155,6 +166,8 @@ if __name__ == '__main__':
                 os.system( "editor intervals.template" ) #tip: editor can be set with `$ sudo update-alternatives --config editor` or `export EDITOR="vim"` in .bashrc
             elif opt=="/registro":
                 print_register( register_file )
+            elif opt=="/clear":
+                clear_dones()
             elif len(opt)>1:
                 if opt[0]=="*":
                     add_task( opt[1:].strip() )
