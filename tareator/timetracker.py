@@ -6,7 +6,7 @@ def register2shptime(project, note, start_time, end_time):
     if not project:
         project = 'Otros' # project by default
     s, e = ( datetime.strftime(x, '%H:%M') if x.date()==datetime.today().date() else x.isoformat() for x in [start_time, end_time] )  # if today, just time. else, isoformat
-    return f'shptime --dry-run add -n {project} -t "{note}" -s {s} -e {e}'
+    return f'shptime add -n {project} -t "{note}" -s {s} -e {e}'
 
 def push_commit():
     #TODO: may improve exceptions handling
@@ -64,25 +64,25 @@ def edit_commit(dtime, register_file):
                                 end_time = ends[i]
                             start_time = end_time # so next action starts on the end_time of this action
                     os.system( "editor commit.tmp" )
-                    push_commit()
+                    #push_commit()
                     f.write(f"--committed on { dtime.isoformat() } until here--\n")
                 else:
                     print("[-] nada para hacer commit")
                 break
 
-def prompt_commands():
+def prompt_commands(commands_list):
     try:
         from prompt_toolkit.completion import FuzzyWordCompleter
         from prompt_toolkit.shortcuts import prompt
-        commands = FuzzyWordCompleter(["/commit", "/intervalos", "/registro", "/clear"])
+        commands = FuzzyWordCompleter(commands_list)
         opt = prompt(">> ", completer=commands, complete_while_typing=True)
         return opt
     except ImportError:
         raise ImportError
 
-def complete_commands():
+def complete_commands(commands_list):
     import readline
-    commands = ["/commit", "/intervalos", "/registro", "/clear"]
+    commands = commands_list
     def completer(text, i):
         command = [c for c in commands if c.startswith(text)]
         try:
