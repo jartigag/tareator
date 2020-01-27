@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import os, sys
+import csv
 from datetime import datetime
 from .timetracker import edit_commit, prompt_commands, complete_commands
 
@@ -83,8 +84,10 @@ def write_tasks_file():
     os.system("mv {}.tmp {}".format(tasks_file, tasks_file))
 
 def write_register_file(action, dtime):
-    with open(register_file,"a") as f:
-        f.write(f"{ dtime.isoformat() },{action}\n") #TODO: dump to csv properly
+    with open(register_file,"a",newline='') as f: # if newline='' is not specified, newlines embedded inside quoted fields will not be interpreted correctly [..]
+                                                  # https://docs.python.org/3/library/csv.html#id3
+        writer = csv.writer(f)
+        writer.writerow([dtime.isoformat(), action])
 
 def add_task(task):
     tasks.append( {'task': task, 'status': "to-do" } )
@@ -143,10 +146,12 @@ def clear_dones():
 
 def print_register(register_file):
     printable = []
-    with open(register_file) as f:
-        for line in reversed( f.read().splitlines() ): # reading from most recent lines
-            if not line.startswith('--committed'): # read until "--commited--" line found:
-                printable.append(line)
+    with open(register_file, newline='') as f:
+        reader = csv.reader(f)
+        lines = list( reader ) # ugh.. better way?
+        for line in reversed( lines ): # reading from most recent lines
+            if not line[1]=="--committed until here--": # read until "--commited--" line found:
+                printable.append(f"{line[0]},{line[1]}")
             else:
                 break
     for p in reversed(printable): #printing in chronological order (from oldest to newest)
