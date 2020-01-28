@@ -71,7 +71,7 @@ def edit_commit(dtime, register_file):
                     os.system( "editor commit.tmp" )
                     push_commit()
                     writer = csv.writer(f, newline='')
-                    writer.writerow([dtime.isoformat(), "--comitted until here--"])
+                    writer.writerow([dtime.isoformat(), "--committed until here--"])
                 else:
                     print("[-] nada para hacer commit")
                 break
