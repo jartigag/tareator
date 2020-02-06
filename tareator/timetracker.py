@@ -17,6 +17,7 @@ def push_commit():
         print("[-] error")
 
 def alias_from_text(text):
+    '''returns first alias found in text (alias defined as a word starting with "#")'''
     aliases = [
         ''.join(c for c in word if c not in string.punctuation.replace("-",""))
     # ^^ filter every punctuation symbol except "-" (an alias may contain it) ^^
@@ -27,50 +28,68 @@ def alias_from_text(text):
     else:
         return False
 
-def dump_commit(actions):
-    #TODO: improve this function
-    with open("commit.tmp","w") as cf:
-        starts = []
-        ends = []
+def get_interval_hours():
+    intervals = []
+    try:
         with open("intervals.template") as intf:
             for line in intf.read().splitlines():
                 if line and not line.startswith('#'):
-                    s,e = line.split('-') # like "09:00-13:30"
-                    starts.append( datetime.today().replace(hour=int(s.split(':')[0]), minute=int(s.split(':')[1]), second=0, microsecond=0) )
-                    ends.append( datetime.today().replace(hour=int(e.split(':')[0]), minute=int(e.split(':')[1]), second=0, microsecond=0) )
-        if not starts:
-            starts.append( datetime.today().replace(hour=9, minute=0, second=0, microsecond=0) ) #starts[0]=09:00 by default
-        i=0
-        start_time = starts[0]
-        for action in reversed(actions): # actions have been added from newest to oldest,
-                                         # so now will be dumped to 'commit.tmp' in chronological order (from oldest to newest)
-            note = action[1]
-            project = alias_from_text(note)
-            this_time = datetime.strptime(action[0], '%Y-%m-%dT%H:%M:%S')
-            while starts[i]>this_time:
-                i+=1 # find next applicable start_time
-                start_time = starts[i]
-            end_time = this_time
-            cf.write(f"{ register2shptime( project, note, start_time, end_time ) }\n")
-            while ends[i]<this_time:
-                i+=1 # find next applicable end_time
-                end_time = ends[i]
-            start_time = end_time # so next action starts on the end_time of this action
+                    intervals.append( [ datetime.strptime(h, '%H:%M').time() for h in line.split('-') ] ) # like "09:00-13:30" -> [09:00, 13:30]
+    except:
+        # interval by default:
+        intervals = [ datetime.strptime('09:00', '%H:%M').time(), datetime.strptime('17:00', '%H:%M').time() ]
+    return intervals
+
+def dump_commit(actions):
+    intervals = get_interval_hours()
+    days = sorted(set( a[0].date() for a in actions ))
+
+    with open("commit.tmp","w") as cf:
+
+        for actual_day in days:
+
+            # set interval hours on actual day:
+            actual_day_intervals = [ [ datetime.combine(actual_day, interval_hours) for interval_hours in interval ] for interval in intervals ]
+
+            actual_day_actions = [ action for action in actions if action[0].date()==actual_day ]
+
+            n = 0 # initial interval
+            start_time = actual_day_intervals[n][0]
+
+            for i,action in enumerate(reversed(actual_day_actions)):
+            #                           ^^^ actions have been added from newest to oldest,
+            #                               so now will be dumped to 'commit.tmp' in chronological order (from oldest to newest)
+
+                end_time = actual_day_intervals[n][1]
+
+                if actual_day_actions[i][0] < end_time:
+                    end_time = actual_day_actions[i][0] if i<len(actual_day_actions)-1 else actual_day_intervals[n][1]
+                    start_time = actual_day_intervals[n][0] if start_time<actual_day_intervals[n][0] else start_time
+                    note = action[1]
+                    project = alias_from_text(note)
+                    cf.write(f"{ register2shptime( project, note, start_time, end_time ) }\n")
+                    # set next start_time:
+                    start_time = end_time
+                else:
+                    n+=1 # next interval
+                    note = action[1]
+                    project = alias_from_text(note)
+                    cf.write(f"{ register2shptime( project, note, start_time, end_time ) }\n")
 
 def edit_commit(dtime, register_file):
     actions = []
     with open(register_file,"r+", newline='') as f:
         reader = csv.reader(f)
-        lines = list( reader ) # ugh.. better way?
+        lines = list( reader )
         for line in reversed( lines ): # reading from most recent lines
             if not line[1]=="--committed until here--": # 1. get actions until "--commited--" line found:
-                actions.append([line[0],line[1].replace('"', "'")]) #TODO: cleaner way?
+                actions.append([ datetime.strptime(line[0], '%Y-%m-%dT%H:%M:%S'), line[1].replace('"', "'") ]) # like [2020-02-02T10:00:00, 'report made']
             else:
-                if len(actions)>0:                   # 2. dump actions on 'commit.tmp', edit it and push it:
+                if len(actions)>0:                      # 2. dump actions on 'commit.tmp', edit it and push it:
                     dump_commit(actions)
                     os.system( "editor commit.tmp" )
                     push_commit()
-                    writer = csv.writer(f, newline='')
+                    writer = csv.writer(f, lineterminator="\n")
                     writer.writerow([dtime.isoformat(), "--committed until here--"])
                 else:
                     print("[-] nada para hacer commit")

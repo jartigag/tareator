@@ -86,7 +86,7 @@ def write_tasks_file():
 def write_register_file(action, dtime):
     with open(register_file,"a",newline='') as f: # if newline='' is not specified, newlines embedded inside quoted fields will not be interpreted correctly [..]
                                                   # https://docs.python.org/3/library/csv.html#id3
-        writer = csv.writer(f)
+        writer = csv.writer(f, lineterminator="\n")
         writer.writerow([dtime.isoformat(), action])
 
 def add_task(task):
