@@ -6,12 +6,17 @@ import csv
 from datetime import datetime
 from .timetracker import edit_commit, prompt_commands, complete_commands
 
-tasks_file = 'README.md'
+tasks_file = 'README.md' if len(sys.argv)==1 else sys.argv[1]
 register_file = 'register.csv'
+symbol = '[x]'
+alt_symbol = '- [x]'
+with open(tasks_file) as f:
+    if any( alt_symbol.replace('x',c) in f.read() for c in 'x/ '):
+        symbol = alt_symbol
 mark = {
-    'done': '- [x]',
-    'wip': '- [/]',
-    'to-do': '- [ ]'
+    'done': symbol,
+    'wip': symbol.replace('x','/'),
+    'to-do': symbol.replace('x',' ')
 }
 commands_list = ["/commit", "/intervalos", "/registro", "/clear"]
 
