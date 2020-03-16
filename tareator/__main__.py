@@ -8,8 +8,9 @@ from datetime import datetime
 from .timetracker import edit_commit, prompt_commands, complete_commands
 
 tasks_file = 'README.md' if len(sys.argv)==1 else sys.argv[1]
-register_file = 'register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(path.basename(sys.argv[1]))[0] )
-#                                                                        ^^^ so '/home/user/TODOs.work.md' becomes 'TODOs.work'
+tasks_file_basename = path.basename(tasks_file)
+register_file = 'register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(tasks_file_basename)[0])
+open(register_file,'a+').close() # touch
 symbol = '[x]'
 alt_symbol = '- [x]'
 with open(tasks_file) as f:
@@ -59,7 +60,7 @@ def reload_screen():
 def read_tasks_file():
     tasks.clear()
     print()
-    print(f"{bold('[[ lista de TAREATOR ]]')}\n")
+    print(f"{bold('[[ TAREATOR: lista de {} ]]')}\n".format(tasks_file_basename))
     with open(tasks_file) as f:
         for line in f.read().splitlines(): # ("\n" removed)
             status = "Error"
@@ -153,7 +154,7 @@ def clear_dones():
 
 def print_register(register_file):
     printable = []
-    with open(register_file, 'a+', newline='') as f: # a+: create file if it doesn't exist and open it in append mode
+    with open(register_file, newline='') as f:
         reader = csv.reader(f)
         lines = list( reader ) # ugh.. better way?
         for line in reversed( lines ): # reading from most recent lines
@@ -193,7 +194,7 @@ if __name__ == '__main__':
                 if int(opt)<len(tasks):
                     action = mark_as_done( int(opt), now )
                 else:
-                    print("número inválido")
+                    print(f"{red('[!]')} número inválido")
             elif opt in commands_list:
                 parse_commands(opt)
             elif len(opt)>1:
@@ -204,9 +205,9 @@ if __name__ == '__main__':
                         if int(opt[1:])<len(tasks):
                             action = mark_as_wip( int(opt[1:]), now )
                         else:
-                            print("número inválido")
+                            print(f"{red('[!]')} número inválido")
                     else:
-                        print("número inválido")
+                        print(f"{red('[!]')} número inválido")
                 else:
                     action = confirm_action( opt, now )
             else:
