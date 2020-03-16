@@ -1,19 +1,24 @@
 #!/bin/bash
 
-# if external python libraries are needed in a future,
-# they can be easily virtualenv-ed here ( "$@" )
+#usage: just `./install.sh`
+#       or `./install.sh my_tasks.md` if you want to make my_tasks.md as your tasks-list by default
 
-tasks_file=${1:-'\$1'} #  tasks_file will be hardcoded if $1 is non-empty.
-                       #  otherwise, it can be passed as an argument (tareator $1)
+default_tasks_file=${1:-'\$1'} #  default_tasks_file will be hardcoded if $1 is non-empty.
+#  even so, a tasks_file can always be passed as an argument (e.g.: `tareator tasks-myproject.md`)
 
 cat << EOF > /tmp/tareator
 #!/bin/bash
 
+tasks_file=\`readlink -f \${1:-'$default_tasks_file'}\`
+
 cd $(pwd)
-python3 -m tareator "$tasks_file"
+python3 -m tareator "\$tasks_file"
 EOF
 
 echo "Generating /usr/bin/tareator... (may ask for sudo password)"
 
 sudo mv /tmp/tareator /usr/bin/tareator
 sudo chmod +x /usr/bin/tareator
+
+# if external python libraries are needed in a future,
+# they can be easily virtualenv-ed here ( `python3 -m tareator "$@"` )
