@@ -1,4 +1,4 @@
-register.csv
+register*.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

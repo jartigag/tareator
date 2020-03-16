@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import os, sys
+import sys
+from os import system, path
 import csv
 from datetime import datetime
 from .timetracker import edit_commit, prompt_commands, complete_commands
 
 tasks_file = 'README.md' if len(sys.argv)==1 else sys.argv[1]
-register_file = 'register.csv'
+register_file = 'register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(path.basename(sys.argv[1]))[0] )
+#                                                                        ^^^ so '/home/user/TODOs.work.md' becomes 'TODOs.work'
 symbol = '[x]'
 alt_symbol = '- [x]'
 with open(tasks_file) as f:
@@ -40,7 +42,7 @@ help_msg = f"""la herramienta "tareator" responde interactivamente a lo que escr
 escribe 'hh' para mostrar la ayuda más detallada.
 """
 
-hhelp_msg = """tareator v0.6, de @jartigag
+hhelp_msg = """tareator v0.7, de @jartigag
 
 ...
 
@@ -50,8 +52,8 @@ tengo que escribir la ayuda detallada
 tasks = []
 
 def reload_screen():
-    os.system('clear')
-    os.system('clear')
+    system('clear')
+    system('clear')
     read_tasks_file()
 
 def read_tasks_file():
@@ -86,7 +88,7 @@ def write_tasks_file():
                     break
                 elif i_t==len(tasks)-1:
                     outf.write(line)
-    os.system("mv {}.tmp {}".format(tasks_file, tasks_file))
+    system("mv {}.tmp {}".format(tasks_file, tasks_file))
 
 def write_register_file(action, dtime):
     with open(register_file,"a",newline='') as f: # if newline='' is not specified, newlines embedded inside quoted fields will not be interpreted correctly [..]
@@ -145,13 +147,13 @@ def clear_dones():
         for line in readf.readlines():
             if not line.startswith(mark['done']):
                 writef.write(line)
-        os.system(f"mv {tasks_file}.tmp {tasks_file}")
+        system(f"mv {tasks_file}.tmp {tasks_file}")
     reload_screen()
     print(f"{green('[+]')} has limpiado las tareas completadas")
 
 def print_register(register_file):
     printable = []
-    with open(register_file, newline='') as f:
+    with open(register_file, 'a+', newline='') as f: # a+: create file if it doesn't exist and open it in append mode
         reader = csv.reader(f)
         lines = list( reader ) # ugh.. better way?
         for line in reversed( lines ): # reading from most recent lines
@@ -166,7 +168,7 @@ def parse_commands(opt):
     if opt=="/commit":
         edit_commit( now, register_file )
     elif opt=="/intervalos":
-        os.system( "editor intervals.template" ) #tip: editor can be set with `$ sudo update-alternatives --config editor` or `export EDITOR="vim"` in .bashrc
+        system( "editor intervals.template" ) #tip: editor can be set with `$ sudo update-alternatives --config editor` or `export EDITOR="vim"` in .bashrc
     elif opt=="/registro":
         print_register( register_file )
     elif opt=="/clear":

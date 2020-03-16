@@ -1,13 +1,13 @@
 #!/bin/bash
 
 # if external python libraries are needed in a future,
-# they can be easily virtualenv-ed here
+# they can be easily virtualenv-ed here ( "$@" )
 
 cat << EOF > /tmp/tareator
 #!/bin/bash
 
 cd $(pwd)
-python3 -m tareator "\$@"
+python3 -m tareator \$1
 EOF
 
 echo "Generating /usr/bin/tareator... (may ask for sudo password)"
