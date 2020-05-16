@@ -1,6 +1,6 @@
 Esta herramienta ayuda a gestionar una lista de tareas típica, como por ejemplo este mismo README.
 
-<p align="center"><a href="https://asciinema.org/a/330703" target="_blank"><img src="https://asciinema.org/a/200795.png"/></a></p>
+<p align="center"><a href="https://asciinema.org/a/330703" target="_blank"><img src="https://asciinema.org/a/330703.png"/></a></p>
 
 Pretende ser:
 - Sencilla de usar
