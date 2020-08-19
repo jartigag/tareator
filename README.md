@@ -7,9 +7,9 @@ Pretende ser:
 - Fácil de modificar
 - Modular y extensible
 
-Se ha orientado a que, de su uso cotidiano, se extraiga el contenido para completar automáticamente las entradas de un time-tracker.
+Se ha orientado a que, de su uso cotidiano, se extraigan los datos necesarios para completar automáticamente las entradas de un [time-tracker](https://en.wikipedia.org/wiki/Time-tracking_software).
 
-Además, produce un fichero CSV en el que se registra cuándo se ha realizado cada acción, sobre el cual se podrá hacer un análisis posterior con otras herramientas.
+Además, produce un fichero CSV en el que se registra cuándo se ha realizado cada acción. Sobre él se podrán hacer análisis posteriores con otras herramientas.
 
 # tareator
 
