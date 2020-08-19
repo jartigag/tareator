@@ -31,7 +31,7 @@ Además, produce un fichero CSV en el que se registra cuándo se ha realizado ca
 - [x] Generar `commit.tmp`
 - [x] #alias
 - [x] Editar `intervals.template`
-- [ ] Redondear con bloques de 15 mins
+- [x] Redondear con bloques de 15 mins
 
 ## Funcionalidades extra
 

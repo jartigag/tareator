@@ -1,7 +1,7 @@
 import os
 import csv
 import string
-from datetime import datetime
+from datetime import datetime, timedelta
 
 def register2shptime(project, note, start_time, end_time):
     if not project:
@@ -37,8 +37,14 @@ def get_interval_hours():
                     intervals.append( [ datetime.strptime(h, '%H:%M').time() for h in line.split('-') ] ) # like "09:00-13:30" -> [09:00, 13:30]
     except:
         # interval by default:
-        intervals = [ datetime.strptime('09:00', '%H:%M').time(), datetime.strptime('17:00', '%H:%M').time() ]
+        intervals = [ [ datetime.strptime('09:00', '%H:%M').time(), datetime.strptime('17:00', '%H:%M').time() ] ]
     return intervals
+
+def round_time(t):
+    '''returns time rounding to the nearest 15 minute mark'''
+    discarded_difference = timedelta(minutes=t.minute%15, seconds=t.second)
+    rounded_t = t+discarded_difference if discarded_difference >= timedelta(minutes=15/2) else t-discarded_difference
+    return rounded_t
 
 def dump_commit(actions):
     intervals = get_interval_hours()
@@ -54,27 +60,30 @@ def dump_commit(actions):
             actual_day_actions = [ action for action in actions if action[0].date()==actual_day ]
 
             n = 0 # initial interval
-            start_time = actual_day_intervals[n][0]
+            start_time = round_time(actual_day_intervals[n][0])
 
             for i,action in enumerate(reversed(actual_day_actions)):
             #                           ^^^ actions have been added from newest to oldest,
             #                               so now will be dumped to 'commit.tmp' in chronological order (from oldest to newest)
 
-                end_time = actual_day_intervals[n][1]
+                end_time = round_time(actual_day_intervals[n][1])
 
-                if actual_day_actions[i][0] < end_time:
-                    end_time = actual_day_actions[i][0] if i<len(actual_day_actions)-1 else actual_day_intervals[n][1]
-                    start_time = actual_day_intervals[n][0] if start_time<actual_day_intervals[n][0] else start_time
+                if action[0] < end_time:
+                    end_time = round_time(action[0]) if i<len(actual_day_actions)-1 else round_time(actual_day_intervals[n][1])
                     note = action[1]
                     project = alias_from_text(note)
                     cf.write(f"{ register2shptime( project, note, start_time, end_time ) }\n")
                     # set next start_time:
                     start_time = end_time
                 else:
-                    n+=1 # next interval
                     note = action[1]
                     project = alias_from_text(note)
                     cf.write(f"{ register2shptime( project, note, start_time, end_time ) }\n")
+                    # set next interval:
+                    if n<len(actual_day_intervals)-1:
+                        n+=1
+                    else:
+                        break
 
 def edit_commit(dtime, register_file):
     actions = []
@@ -99,6 +108,7 @@ def prompt_commands(commands_list):
     try:
         from prompt_toolkit.completion import FuzzyWordCompleter
         from prompt_toolkit.shortcuts import prompt
+        raise ImportError
         commands = FuzzyWordCompleter(commands_list)
         opt = prompt(">> ", completer=commands, complete_while_typing=True)
         return opt
