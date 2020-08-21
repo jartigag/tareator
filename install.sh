@@ -1,4 +1,6 @@
 #!/bin/bash
+#author: @jartigag
+#date: 16/03/2020
 
 #usage: just `./install.sh`
 #       or `./install.sh my_tasks.md` if you want to make my_tasks.md as your tasks-list by default

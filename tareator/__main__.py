@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+#author: @jartigag
+#date: 21/08/2020
+#version: 0.7
 
 import sys
 from os import system, path
@@ -9,18 +11,26 @@ from .timetracker import edit_commit, prompt_commands, complete_commands
 
 tasks_file = 'README.md' if len(sys.argv)==1 else sys.argv[1]
 tasks_file_basename = path.basename(tasks_file)
+
 register_file = 'register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(tasks_file_basename)[0])
+
 open(register_file,'a+').close() # touch
+
+# support both styles on a tasks-list:
 symbol = '[x]'
 alt_symbol = '- [x]'
+
 with open(tasks_file) as f:
     if any( alt_symbol.replace('x',c) in f.read() for c in 'x/ '):
+    #                                         [x], [/], [ ] ^^^
         symbol = alt_symbol
+
 mark = {
     'done': symbol,
     'wip': symbol.replace('x','/'),
     'to-do': symbol.replace('x',' ')
 }
+
 commands_list = ["/commit", "/intervalos", "/registro", "/clear"]
 
 def bold(text): return f"\033[1m{text}\033[0m"
@@ -43,11 +53,15 @@ help_msg = f"""la herramienta "tareator" responde interactivamente a lo que escr
 escribe 'hh' para mostrar la ayuda más detallada.
 """
 
-hhelp_msg = """tareator v0.7, de @jartigag
+hhelp_msg = """tareator v0.7, de @jartigag (https://github.com/jartigag/tareator)
 
 ...
 
 tengo que escribir la ayuda detallada
+* shptime
+* describir el proceso de /commit:
+  vuelca lo que hay en register.csv en tareas de shptime teniendo en cuenta intervals.template
+* explicar alias
 """
 
 tasks = []
@@ -60,7 +74,7 @@ def reload_screen():
 def read_tasks_file():
     tasks.clear()
     print()
-    print(f"{bold('[[ TAREATOR: lista de {} ]]')}\n".format(tasks_file_basename))
+    print(f"{bold('[[ TAREATOR: lista {} ]]')}\n".format(tasks_file_basename))
     with open(tasks_file) as f:
         for line in f.read().splitlines(): # ("\n" removed)
             status = "Error"
@@ -156,13 +170,13 @@ def print_register(register_file):
     printable = []
     with open(register_file, newline='') as f:
         reader = csv.reader(f)
-        lines = list( reader ) # ugh.. better way?
+        lines = list( reader )
         for line in reversed( lines ): # reading from most recent lines
             if not line[1]=="--committed until here--": # read until "--commited--" line found:
                 printable.append(f"{line[0]},{line[1]}")
             else:
                 break
-    for p in reversed(printable): #printing in chronological order (from oldest to newest)
+    for p in reversed(printable): # printing in chronological order (from oldest to newest)
         print(p)
 
 def parse_commands(opt):
