@@ -35,5 +35,5 @@ Además, produce un fichero CSV en el que se registra cuándo se ha realizado ca
 
 ## Funcionalidades extra
 
-- [ ] Deshacer última acción
-- [ ] Subtareas
+- [x] Deshacer última acción
+- [/] Subtareas

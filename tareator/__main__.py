@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #author: @jartigag
-#date: 21/08/2020
-#version: 0.7
+#date: 24/08/2020
+#version: 0.8
 
 import sys
 from os import system, path
@@ -31,7 +31,7 @@ mark = {
     'to-do': symbol.replace('x',' ')
 }
 
-commands_list = ["/commit", "/intervalos", "/registro", "/clear"]
+commands_list = ["/registro", "/commit", "/intervalos", "/clear", "/deshacer"]
 
 def bold(text): return f"\033[1m{text}\033[0m"
 def red(text): return f"\033[1;31m{text}\033[0m"
@@ -45,15 +45,16 @@ help_msg = f"""la herramienta "tareator" responde interactivamente a lo que escr
 {bold('1')}                     marca la tarea pendiente 1 como hecha
 {bold('.5')}                    marca la tarea 5 como en progreso (si había otra en progreso, esa vuelve a pendiente)
 
-{bold('/clear')}                elimina de la lista las tareas completadas
+{bold('/registro')}             imprime las acciones registradas desde el último commit
 {bold('/commit')}               revisa y publica las últimas tareas con shptime
 {bold('/intervalos')}           edita los intervalos por defecto de tu jornada laboral
-{bold('/registro')}             imprime las acciones registradas desde el último commit
+{bold('/clear')}                elimina de la lista las tareas completadas
+{bold('/deshacer')}             elimina la última acción del registro de acciones
 
 escribe 'hh' para mostrar la ayuda más detallada.
 """
 
-hhelp_msg = """tareator v0.7, de @jartigag (https://github.com/jartigag/tareator)
+hhelp_msg = """tareator v0.8, de @jartigag (https://github.com/jartigag/tareator)
 
 ...
 
@@ -179,6 +180,19 @@ def print_register(register_file):
     for p in reversed(printable): # printing in chronological order (from oldest to newest)
         print(p)
 
+def undo(register_file):
+    with open(register_file) as f:
+        lines = f.readlines()
+        last_line = lines[-1]
+        confirmation = input(f"última acción:\n{last_line}eliminar esta acción? [S/n]").lower()
+        if confirmation.startswith('s') or confirmation.startswith('y') or confirmation=="":
+            lines = lines[:-1]
+            with open(register_file,"w") as f:
+                f.write("\n".join(lines))
+            print(f"{green('[+]')} has eliminado la última acción")
+        else:
+            print(f"{red('[-]')} no eliminada")
+
 def parse_commands(opt):
     if opt=="/commit":
         edit_commit( now, register_file )
@@ -188,6 +202,8 @@ def parse_commands(opt):
         print_register( register_file )
     elif opt=="/clear":
         clear_dones()
+    elif opt=="/deshacer":
+        undo( register_file )
 
 if __name__ == '__main__':
     reload_screen()
