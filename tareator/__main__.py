@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #author: @jartigag
-#date: 24/08/2020
-#version: 0.8
+#date: 25/08/2020
+#version: 0.9
 
 import sys
 from os import system, path
@@ -39,22 +39,22 @@ def green(text): return f"\033[1;32m{text}\033[0m"
 
 help_msg = f"""la herramienta "tareator" responde interactivamente a lo que escribas. por ejemplo:
 
-{bold('lo que acabo de hacer')} añade "lo que acabo de hacer" al registro de acciones
+{bold('lo que acabo de hacer')}       añade "lo que acabo de hacer" al registro de acciones
 
-{bold('*una tarea pendiente')}  añade "una tarea pendiente" a la lista de tareas
-{bold('1')}                     marca la tarea pendiente 1 como hecha
-{bold('.5')}                    marca la tarea 5 como en progreso (si había otra en progreso, esa vuelve a pendiente)
+{bold('*una tarea pendiente')}        añade "una tarea pendiente" a la lista de tareas
+{bold('1')}                           marca la tarea pendiente 1 como hecha
+{bold('.5')}                          marca la tarea 5 como en progreso (si había otra en progreso, esa vuelve a pendiente)
 
-{bold('/registro')}             imprime las acciones registradas desde el último commit
-{bold('/commit')}               revisa y publica las últimas tareas con shptime
-{bold('/intervalos')}           edita los intervalos por defecto de tu jornada laboral
-{bold('/clear')}                elimina de la lista las tareas completadas
-{bold('/deshacer')}             elimina la última acción del registro de acciones
+{bold('/registro')}                   imprime las acciones registradas desde el último commit
+{bold('/commit')}                     revisa y publica las últimas tareas con shptime
+{bold('/intervalos')}                 edita los intervalos por defecto de tu jornada laboral
+{bold('/clear')}                      elimina de la lista las tareas completadas
+{bold('/deshacer')}                   elimina la última acción del registro de acciones
 
 escribe 'hh' para mostrar la ayuda más detallada.
 """
 
-hhelp_msg = """tareator v0.8, de @jartigag (https://github.com/jartigag/tareator)
+hhelp_msg = f"""tareator v0.9, de @jartigag (https://github.com/jartigag/tareator)
 
 ...
 
@@ -63,9 +63,30 @@ tengo que escribir la ayuda detallada
 * describir el proceso de /commit:
   vuelca lo que hay en register.csv en tareas de shptime teniendo en cuenta intervals.template
 * explicar alias
+* explicar subtareas
+
+== COMANDOS BÁSICOS DE LISTAS:
+{bold('lo que acabo de hacer')}       añade "lo que acabo de hacer" al registro de acciones
+
+{bold('*una tarea pendiente')}        añade "una tarea pendiente" a la lista de tareas
+{bold('1')}                           marca la tarea pendiente 1 como hecha
+{bold('.5')}                          marca la tarea 5 como en progreso (si había otra en progreso, esa vuelve a pendiente)
+
+== COMANDOS DE TIMETRACKER:
+{bold('/registro')}                   imprime las acciones registradas desde el último commit
+{bold('/commit')}                     revisa y publica las últimas tareas con shptime
+{bold('/intervalos')}                 edita los intervalos por defecto de tu jornada laboral
+{bold('/clear')}                      elimina de la lista las tareas completadas
+{bold('/deshacer')}                   elimina la última acción del registro de acciones
+
+== COMANDOS AVANZADOS DE LISTAS (más en la ayuda detallada):
+{bold('#un conjunto de subtareas')}   añade "un conjunto de subtareas" como título para varias subtareas
+{bold('#*una subtarea pendiente')}    añade "una subtarea pendiente" como subtarea del último conjunto
+{bold('#5*nueva subtarea')}           añade "nueva subtarea" al conjunto de subtareas 5
 """
 
 tasks = []
+subtasks_titles = []
 
 def reload_screen():
     system('clear')
@@ -74,11 +95,18 @@ def reload_screen():
 
 def read_tasks_file():
     tasks.clear()
+    subtasks_titles.clear()
+    last_title = ''
     print()
     print(f"{bold('[[ TAREATOR: lista {} ]]')}\n".format(tasks_file_basename))
     with open(tasks_file) as f:
         for line in f.read().splitlines(): # ("\n" removed)
             status = "Error"
+            splitted_line = line.split()
+            if len(splitted_line)>1:
+                if splitted_line[0].strip()=="##":
+                    last_title = " ".join(splitted_line[1:])
+                    subtasks_titles.append(last_title)
             for k,v in mark.items():
                 n = len(v)
                 task = line.strip()[n:].strip()
@@ -86,24 +114,65 @@ def read_tasks_file():
                 if first_chars==v:
                     status = k
             if status is not "Error":
-                tasks.append( {'task': task, 'status': status } )
+                tasks.append( {'task': task, 'status': status, 'title': last_title } )
     for t in tasks:
-        print(f"{tasks.index(t)}.{mark[t['status']]} {t['task']}")
+        if not t['title']:
+            print(f"{tasks.index(t)}.{mark[t['status']]} {t['task']}")
+    if subtasks_titles:
+        for title in subtasks_titles:
+            print(f"\n#{subtasks_titles.index(title)} {title}")
+            for t in tasks:
+                if t['title']==title:
+                    print(f"{tasks.index(t)}.{mark[t['status']]} {t['task']}")
     print()
 
-def write_tasks_file():
+def write_tasks_file(new_task = {'task': '', 'status': '', 'title': ''}):
+    #TODO: rewrite/split/factorize this function
+
     with open(tasks_file) as inf, open("{}.tmp".format(tasks_file),"w") as outf:
+        normal_tasks = [x for x in tasks if not x['title']]
+        subtasks = [x for x in tasks if x['title']]
         lines = inf.readlines()
+        writing_subtasks = False
+        in_the_title = False
         for i_line,line in enumerate(lines):
-            for i_t,t in enumerate(tasks):
-                n = len(mark[t['status']])
-                task = line.strip()[n:].strip()
-                first_chars = line.strip()[:n]
-                if t['task']==task:
-                    outf.write(line.replace( first_chars, mark[t['status']]) )
-                    break
-                elif i_t==len(tasks)-1:
-                    outf.write(line)
+            splitted_line = line.split()
+            if not writing_subtasks:
+                if len(splitted_line)>1:
+                    if splitted_line[0].strip()=="##":
+                        writing_subtasks = True
+                        if new_task['task']!='' and new_task['title']=='':
+                            outf.write(f"{mark['to-do']} {new_task['task']}\n\n")
+                        outf.write(line)
+                        continue
+                for i_t,t in enumerate(normal_tasks):
+                    n = len(mark[t['status']])
+                    task = line.strip()[n:].strip()
+                    first_chars = line.strip()[:n]
+                    if t['task']==task:
+                        outf.write(line.replace( first_chars, mark[t['status']]) )
+                        break
+                    elif i_t==len(normal_tasks)-1:
+                        outf.write(line)
+            if subtasks and writing_subtasks:
+                if len(splitted_line)>1:
+                    if splitted_line[0].strip()=="##":
+                        if in_the_title:
+                            outf.write(f"{mark['to-do']} {new_task['task']}\n\n")
+                            in_the_title = False
+                        if new_task['task']!='' and new_task['title']==" ".join(splitted_line[1:]):
+                            in_the_title = True
+                for i_t,t in enumerate(subtasks):
+                    n = len(mark[t['status']])
+                    task = line.strip()[n:].strip()
+                    first_chars = line.strip()[:n]
+                    if t['task']==task:
+                        outf.write(line.replace( first_chars, mark[t['status']]) )
+                        break
+                    elif i_t==len(subtasks)-1:
+                        outf.write(line)
+                if in_the_title and i_line==len(lines)-1:
+                    outf.write(f"{mark['to-do']} {new_task['task']}\n")
     system("mv {}.tmp {}".format(tasks_file, tasks_file))
 
 def write_register_file(action, dtime):
@@ -112,12 +181,10 @@ def write_register_file(action, dtime):
         writer = csv.writer(f, lineterminator="\n")
         writer.writerow([dtime.isoformat(), action])
 
-def add_task(task):
-    tasks.append( {'task': task, 'status': "to-do" } )
-    with open(tasks_file,"a") as f:
-        f.write(f"{mark['to-do']} {task}\n")
+def add_task(task, subtask_title=''):
+    new_task = {'task': task, 'status': "to-do", 'title': subtask_title }
+    write_tasks_file(new_task)
     reload_screen()
-    return f"[ ] {task.strip()}"
 
 def mark_as_done(i, dtime):
     if tasks[i]['status'] is not "done":
@@ -188,10 +255,15 @@ def undo(register_file):
         if confirmation.startswith('s') or confirmation.startswith('y') or confirmation=="":
             lines = lines[:-1]
             with open(register_file,"w") as f:
-                f.write("\n".join(lines))
+                f.write("".join(lines))
             print(f"{green('[+]')} has eliminado la última acción")
         else:
             print(f"{red('[-]')} no eliminada")
+
+def add_tasks_title(title):
+    with open(tasks_file, 'a') as f:
+        f.write(f"\n## {title}\n")
+    reload_screen()
 
 def parse_commands(opt):
     if opt=="/commit":
@@ -238,6 +310,19 @@ if __name__ == '__main__':
                             print(f"{red('[!]')} número inválido")
                     else:
                         print(f"{red('[!]')} número inválido")
+                elif opt[0]=="#":
+                    if opt[1]=="*":
+                        add_task( opt[2:].strip(), subtasks_titles[-1] )
+                    elif "*" in opt[1:]:
+                        if opt[1:opt.index("*")].isdigit():
+                            if int(opt[1:opt.index("*")])<len(subtasks_titles):
+                                add_task( opt[3:].strip(), subtasks_titles[ int(opt[1:opt.index("*")]) ] )
+                            else:
+                                print(f"{red('[!]')} número inválido")
+                        else:
+                            print(f"{red('[!]')} número inválido")
+                    else:
+                        add_tasks_title( opt[1:].strip() )
                 else:
                     action = confirm_action( opt, now )
             else:
