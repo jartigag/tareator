@@ -127,53 +127,88 @@ def read_tasks_file():
     print()
 
 def write_tasks_file(new_task = {'task': '', 'status': '', 'title': ''}):
-    #TODO: rewrite/split/factorize this function
 
     with open(tasks_file) as inf, open("{}.tmp".format(tasks_file),"w") as outf:
+
+        # split tasks in subtasks and not-subtasks (normal tasks):
         normal_tasks = [x for x in tasks if not x['title']]
         subtasks = [x for x in tasks if x['title']]
+
         lines = inf.readlines()
+        if len(lines)==0: lines = [""] # for empty tasks_files
+
         writing_subtasks = False
         in_the_title = False
+
         for i_line,line in enumerate(lines):
+
             splitted_line = line.split()
+
             if not writing_subtasks:
+            # normal tasks are on first place:
+
                 if len(splitted_line)>1:
                     if splitted_line[0].strip()=="##":
+                    # now we're entering on the subtasks sections..
                         writing_subtasks = True
                         if new_task['task']!='' and new_task['title']=='':
+                    # ..so if new task is a normal task, write it just before the subtasks sections
                             outf.write(f"{mark['to-do']} {new_task['task']}\n\n")
                         outf.write(line)
                         continue
+
                 for i_t,t in enumerate(normal_tasks):
                     n = len(mark[t['status']])
                     task = line.strip()[n:].strip()
                     first_chars = line.strip()[:n]
                     if t['task']==task:
+                    # update the new status of the present task
                         outf.write(line.replace( first_chars, mark[t['status']]) )
                         break
                     elif i_t==len(normal_tasks)-1:
                         outf.write(line)
+
+                # if this is the last line of the file and we're reading normal tasks yet,
+                # write the new task now:
+                if i_line==len(lines)-1:
+                    outf.write(f"{mark['to-do']} {new_task['task']}\n")
+
             if subtasks and writing_subtasks:
+            # then the subtasks sections come:
+
                 if len(splitted_line)>1:
                     if splitted_line[0].strip()=="##":
                         if in_the_title:
-                            outf.write(f"{mark['to-do']} {new_task['task']}\n\n")
+                        # we're about to enter on a different subtasks section,
+                        # so write the new subtask at the bottom of this subtasks section
+                            outf.write(f"{mark['to-do']} {new_task['task']}\n")
                             in_the_title = False
                         if new_task['task']!='' and new_task['title']==" ".join(splitted_line[1:]):
+                        # we're on the right subtasks section, so activate the flag..
                             in_the_title = True
+
                 for i_t,t in enumerate(subtasks):
                     n = len(mark[t['status']])
                     task = line.strip()[n:].strip()
                     first_chars = line.strip()[:n]
                     if t['task']==task:
+                    # update the new status of the present task
                         outf.write(line.replace( first_chars, mark[t['status']]) )
                         break
                     elif i_t==len(subtasks)-1:
                         outf.write(line)
+
+                # if this is the last line of the file and we're reading the right subtasks section yet,
+                # write the new subtask now:
                 if in_the_title and i_line==len(lines)-1:
                     outf.write(f"{mark['to-do']} {new_task['task']}\n")
-    system("mv {}.tmp {}".format(tasks_file, tasks_file))
+
+    # cosmetic adjustments:
+    first_mark_chars = mark["done"][:-2].replace("[","\\[") # `- \[` or ` \[`, escaped to replace on perl
+    system(f'perl -0pe "s/\\n\\n{first_mark_chars}/\\n{first_mark_chars}/g" -i {tasks_file}.tmp') # avoid double newlines
+    system(f'perl -0pe "s/\\n\\n## /\\n## /g" -i {tasks_file}.tmp') # remove empty lines before titles
+    system(f'perl -0pe "s/## /\\n## /g" -i {tasks_file}.tmp') # add one line before titles
+    system(f'mv {tasks_file}.tmp {tasks_file}')
 
 def write_register_file(action, dtime):
     with open(register_file,"a",newline='') as f: # if newline='' is not specified, newlines embedded inside quoted fields will not be interpreted correctly [..]
