@@ -43,7 +43,7 @@ def get_interval_hours():
 def round_time(t):
     '''returns time rounding to the nearest 15 minute mark'''
     discarded_difference = timedelta(minutes=t.minute%15, seconds=t.second)
-    rounded_t = t-discarded_difference if discarded_difference >= timedelta(minutes=15/2) else t+discarded_difference
+    rounded_t = t+timedelta(minutes=15)-discarded_difference if discarded_difference >= timedelta(minutes=15/2) else t-discarded_difference
     return rounded_t
 
 def dump_commit(actions):
