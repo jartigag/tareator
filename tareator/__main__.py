@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #author: @jartigag
-#date: 25/08/2020
-#version: 0.9
+#date: 10/09/2020
+#version: 1.0
 
 import sys
 from os import system, path
@@ -37,52 +37,70 @@ def bold(text): return f"\033[1m{text}\033[0m"
 def red(text): return f"\033[1;31m{text}\033[0m"
 def green(text): return f"\033[1;32m{text}\033[0m"
 
-help_msg = f"""la herramienta "tareator" responde interactivamente a lo que escribas. por ejemplo:
-
+basic_list_commands = f"""
 {bold('lo que acabo de hacer')}       añade "lo que acabo de hacer" al registro de acciones
 
 {bold('*una tarea pendiente')}        añade "una tarea pendiente" a la lista de tareas
 {bold('1')}                           marca la tarea pendiente 1 como hecha
-{bold('.5')}                          marca la tarea 5 como en progreso (si había otra en progreso, esa vuelve a pendiente)
+{bold('.5')}                          marca la tarea 5 como en progreso (si había otra en progreso, esa vuelve a pendiente)"""
 
+timetracker_commands = f"""
 {bold('/registro')}                   imprime las acciones registradas desde el último commit
 {bold('/commit')}                     revisa y publica las últimas tareas con shptime
 {bold('/intervalos')}                 edita los intervalos por defecto de tu jornada laboral
 {bold('/clear')}                      elimina de la lista las tareas completadas
-{bold('/deshacer')}                   elimina la última acción del registro de acciones
+{bold('/deshacer')}                   elimina la última acción del registro de acciones"""
+
+help_msg = f"""la herramienta "tareator" responde interactivamente a lo que escribas. por ejemplo:
+{basic_list_commands}
+{timetracker_commands}
 
 escribe 'hh' para mostrar la ayuda más detallada.
 """
 
-hhelp_msg = f"""tareator v0.9, de @jartigag (https://github.com/jartigag/tareator)
-
-...
-
-tengo que escribir la ayuda detallada
-* shptime
-* describir el proceso de /commit:
-  vuelca lo que hay en register.csv en tareas de shptime teniendo en cuenta intervals.template
-* explicar alias
-* explicar subtareas
-
-== COMANDOS BÁSICOS DE LISTAS:
-{bold('lo que acabo de hacer')}       añade "lo que acabo de hacer" al registro de acciones
-
-{bold('*una tarea pendiente')}        añade "una tarea pendiente" a la lista de tareas
-{bold('1')}                           marca la tarea pendiente 1 como hecha
-{bold('.5')}                          marca la tarea 5 como en progreso (si había otra en progreso, esa vuelve a pendiente)
-
-== COMANDOS DE TIMETRACKER:
-{bold('/registro')}                   imprime las acciones registradas desde el último commit
-{bold('/commit')}                     revisa y publica las últimas tareas con shptime
-{bold('/intervalos')}                 edita los intervalos por defecto de tu jornada laboral
-{bold('/clear')}                      elimina de la lista las tareas completadas
-{bold('/deshacer')}                   elimina la última acción del registro de acciones
-
-== COMANDOS AVANZADOS DE LISTAS (más en la ayuda detallada):
+advanced_list_commands = f"""
 {bold('#un conjunto de subtareas')}   añade "un conjunto de subtareas" como título para varias subtareas
 {bold('#*una subtarea pendiente')}    añade "una subtarea pendiente" como subtarea del último conjunto
-{bold('#5*nueva subtarea')}           añade "nueva subtarea" al conjunto de subtareas 5
+{bold('#5*nueva subtarea')}           añade "nueva subtarea" al conjunto de subtareas 5"""
+
+hhelp_msg = f"""
+tareator v1.0, de @jartigag (https://github.com/jartigag/tareator)
+-----
+
+escribí este script para solventar dos requerimientos comunes en una jornada laboral:
+ - anotar las tareas pendientes
+ - rellenar cómodamente el registro de horas con lo que he hecho
+
+el funcionamiento de {bold('tareator')} se basa simplemente en dos ficheros de texto: una lista (que podría llamarse,
+por ejemplo, tareas.md) y register.csv como histórico.
+
+durante la jornada voy marcando tareas como en progreso o completadas, y apunto qué otras cosas he hecho.
+
+cuando termino todo (o en cualquier momento de ese o de otro día), envío a la empresa el reporte de en qué
+he estado trabajando. esto lo hago con el commando {bold('/commit')}, que vuelca lo que se ha escrito en register.csv
+desde el último commit.
+
+antes de enviar nada, se ajustan los intervalos de cada acción teniendo en cuenta los que hayas definido en
+intervals.template (si no lo has hecho, la jornada por defecto va de 9.00 a 17.00), se redondean al cuarto
+de hora y se abren en un editor de texto para poder modificarlos. cuando se cierra el editor, se ejecutan
+las líneas de ese fichero.
+
+en mi caso, uso por debajo una herramienta interna llamada {bold('shptime')} que publica en el timetracker
+de mi empresa, pero puede sustituirse la función register2shptime() por el "publicador" que se quiera.
+
+una funcionalidad muy interesante es etiquetar con {bold('alias de proyectos')} cada acción que se introduce.
+si escribo "explicar cómo funciona #tareator", cuando haga /commit, el publicador (en este caso, shptime)
+recibirá "tareator" como proyecto al que debe asignar esas horas.
+
+además, también se pueden usar {bold('conjuntos de subtareas')} para agrupar tareas relacionadas bajo un mismo título.
+esto puede ayudar a nivel organizativo, si quieres tener varias listas en un único fichero (por ejemplo,
+tareas.md). por lo demás, funcionan igual.
+
+== COMANDOS BÁSICOS DE LISTAS:{basic_list_commands}
+
+== COMANDOS DE TIMETRACKER:{timetracker_commands}
+
+== COMANDOS AVANZADOS DE LISTAS:{advanced_list_commands}
 """
 
 tasks = []
@@ -127,7 +145,6 @@ def read_tasks_file():
     print()
 
 def write_tasks_file(new_task = {'task': '', 'status': '', 'title': ''}):
-
     with open(tasks_file) as inf, open("{}.tmp".format(tasks_file),"w") as outf:
 
         # split tasks in subtasks and not-subtasks (normal tasks):
@@ -327,8 +344,14 @@ if __name__ == '__main__':
                 opt = complete_commands(commands_list)
             now = datetime.now().replace(microsecond=0)
             if opt=="h":
+                reload_screen()
+                print(f"{bold('qué estás haciendo?')} ('h' para mostrar la ayuda, Intro para recargar)")
+                print(">> h")
                 print(help_msg)
             elif opt=="hh":
+                reload_screen()
+                print(f"{bold('qué estás haciendo?')} ('h' para mostrar la ayuda, Intro para recargar)")
+                print(">> hh")
                 print(hhelp_msg)
             elif opt.isdigit():
                 if int(opt)<len(tasks):
