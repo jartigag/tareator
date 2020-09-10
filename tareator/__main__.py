@@ -208,6 +208,8 @@ def write_tasks_file(new_task = {'task': '', 'status': '', 'title': ''}):
     system(f'perl -0pe "s/\\n\\n{first_mark_chars}/\\n{first_mark_chars}/g" -i {tasks_file}.tmp') # avoid double newlines
     system(f'perl -0pe "s/\\n\\n## /\\n## /g" -i {tasks_file}.tmp') # remove empty lines before titles
     system(f'perl -0pe "s/## /\\n## /g" -i {tasks_file}.tmp') # add one line before titles
+    system(f'perl -0pe "s/^(##).*\\n\\n//gm" -i {tasks_file}.tmp') # remove titles without subtasks
+
     system(f'mv {tasks_file}.tmp {tasks_file}')
 
 def write_register_file(action, dtime):
@@ -266,6 +268,7 @@ def clear_dones():
             if not line.startswith(mark['done']):
                 writef.write(line)
         system(f"mv {tasks_file}.tmp {tasks_file}")
+    write_tasks_file() # to clear empty titles
     reload_screen()
     print(f"{green('[+]')} has limpiado las tareas completadas")
 
