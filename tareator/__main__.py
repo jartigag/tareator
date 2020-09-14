@@ -85,8 +85,8 @@ intervals.template (si no lo has hecho, la jornada por defecto va de 9.00 a 17.0
 de hora y se abren en un editor de texto para poder modificarlos. cuando se cierra el editor, se ejecutan
 las líneas de ese fichero.
 
-en mi caso, uso por debajo una herramienta interna llamada {bold('shptime')} que publica en el timetracker
-de mi empresa, pero puede sustituirse la función register2shptime() por el "publicador" que se quiera.
+en mi caso, uso por debajo una herramienta interna llamada {bold('shptime')} que publica en el timetracker de mi
+empresa, pero puede sustituirse la función register2shptime() por el "publicador" que se quiera.
 
 una funcionalidad muy interesante es etiquetar con {bold('alias de proyectos')} cada acción que se introduce.
 si escribo "explicar cómo funciona #tareator", cuando haga /commit, el publicador (en este caso, shptime)

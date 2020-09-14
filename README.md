@@ -11,6 +11,8 @@ Se ha orientado a que, de su uso cotidiano, se extraigan los datos necesarios pa
 
 Además, produce un fichero CSV en el que se registra cuándo se ha realizado cada acción. Sobre él se podrán hacer análisis posteriores con otras herramientas.
 
+Se hace una explicación un poco más desarrollada en [este post](https://jartigag.github.io/tareator).
+
 # tareator
 - [x] Elegir nombre
 
