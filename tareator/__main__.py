@@ -14,6 +14,7 @@ tasks_file_basename = path.basename(tasks_file)
 
 register_file = 'register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(tasks_file_basename)[0])
 
+open(tasks_file,'a+').close() # touch
 open(register_file,'a+').close() # touch
 
 # support both styles on a tasks-list:
@@ -172,7 +173,6 @@ def write_tasks_file(new_task = {'task': '', 'status': '', 'title': ''}):
                     # ..so if new task is a normal task, write it just before the subtasks sections
                             outf.write(f"{mark['to-do']} {new_task['task']}\n\n")
                         outf.write(line)
-                        continue
 
                 for i_t,t in enumerate(normal_tasks):
                     n = len(mark[t['status']])
@@ -188,9 +188,9 @@ def write_tasks_file(new_task = {'task': '', 'status': '', 'title': ''}):
                 # if this is the last line of the file and we're reading normal tasks yet,
                 # write the new task now:
                 if i_line==len(lines)-1:
-                    outf.write(f"{mark['to-do']} {new_task['task']}\n")
+                    if new_task['task']!='' and new_task['title']=='': outf.write(f"{mark['to-do']} {new_task['task']}\n")
 
-            if subtasks and writing_subtasks:
+            if writing_subtasks and (subtasks or new_task['title']!=''):
             # then the subtasks sections come:
 
                 if len(splitted_line)>1:
@@ -198,7 +198,7 @@ def write_tasks_file(new_task = {'task': '', 'status': '', 'title': ''}):
                         if in_the_title:
                         # we're about to enter on a different subtasks section,
                         # so write the new subtask at the bottom of this subtasks section
-                            outf.write(f"{mark['to-do']} {new_task['task']}\n")
+                            if new_task['task']!='': outf.write(f"{mark['to-do']} {new_task['task']}\n")
                             in_the_title = False
                         if new_task['task']!='' and new_task['title']==" ".join(splitted_line[1:]):
                         # we're on the right subtasks section, so activate the flag..
@@ -218,7 +218,7 @@ def write_tasks_file(new_task = {'task': '', 'status': '', 'title': ''}):
                 # if this is the last line of the file and we're reading the right subtasks section yet,
                 # write the new subtask now:
                 if in_the_title and i_line==len(lines)-1:
-                    outf.write(f"{mark['to-do']} {new_task['task']}\n")
+                    if new_task['task']!='': outf.write(f"{mark['to-do']} {new_task['task']}\n")
 
     # cosmetic adjustments:
     first_mark_chars = mark["done"][:-2].replace("[","\\[") # `- \[` or ` \[`, escaped to replace on perl
