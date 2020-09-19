@@ -14,23 +14,31 @@ tasks_file_basename = path.basename(tasks_file)
 
 register_file = 'register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(tasks_file_basename)[0])
 
-open(tasks_file,'a+').close() # touch
-open(register_file,'a+').close() # touch
+mark = {}
 
-# support both styles on a tasks-list:
-symbol = '[x]'
-alt_symbol = '- [x]'
+def init():
+    global mark
 
-with open(tasks_file) as f:
-    if any( alt_symbol.replace('x',c) in f.read() for c in 'x/ '):
-    #                                         [x], [/], [ ] ^^^
-        symbol = alt_symbol
+    open(tasks_file,'a+').close() # touch
+    open(register_file,'a+').close() # touch
 
-mark = {
-    'done': symbol,
-    'wip': symbol.replace('x','/'),
-    'to-do': symbol.replace('x',' ')
-}
+    # support both styles on a tasks-list:
+    symbol = '[x]'
+    alt_symbol = '- [x]'
+    alt_symbol2 = '- [x]:'
+    with open(tasks_file) as f:
+        fi = f.read()
+        if any( alt_symbol.replace('x',c) in fi for c in 'x/ '):
+        #                                   [x], [/], [ ] ^^^
+            symbol = alt_symbol
+        if any( alt_symbol2.replace('x',c) in fi for c in 'x/ '):
+        #                                    [x], [/], [ ] ^^^
+            symbol = alt_symbol2
+    mark = {
+        'done': symbol,
+        'wip': symbol.replace('x','/'),
+        'to-do': symbol.replace('x',' ')
+    }
 
 commands_list = ["/registro", "/commit", "/intervalos", "/clear", "/deshacer"]
 
@@ -333,6 +341,7 @@ def parse_commands(opt):
         undo( register_file )
 
 if __name__ == '__main__':
+    init()
     reload_screen()
     while True:
         print(f"{bold('qué estás haciendo?')} ('h' para mostrar la ayuda, Intro para recargar)")
