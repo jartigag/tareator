@@ -12,7 +12,7 @@ from .timetracker import edit_commit, prompt_commands, complete_commands
 tasks_file = 'README.md' if len(sys.argv)==1 else sys.argv[1]
 tasks_file_basename = path.basename(tasks_file)
 
-register_file = 'register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(tasks_file_basename)[0])
+register_file = path.dirname(tasks_file) + '/register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(tasks_file_basename)[0])
 
 mark = {}
 
