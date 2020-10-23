@@ -1,11 +1,11 @@
 #!/bin/bash
 #author: @jartigag
-#date: 16/03/2020
+#date: 23/10/2020
 
 #usage: just `./install.sh`
 #       or `./install.sh my_tasks.md` if you want to make my_tasks.md as your tasks-list by default
 
-default_tasks_file=${1:-'\$1'} #  default_tasks_file will be hardcoded if $1 is non-empty.
+default_tasks_file=${1:-'tareas.md'} #  default_tasks_file will be hardcoded if $1 is non-empty.
 #  even so, a tasks_file can always be passed as an argument (e.g.: `tareator tasks-myproject.md`)
 
 cat << EOF > /tmp/tareator
