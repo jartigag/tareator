@@ -42,6 +42,7 @@ def get_interval_hours():
     except:
         # interval by default:
         intervals = [ [ datetime.strptime('09:00', '%H:%M').time(), datetime.strptime('17:00', '%H:%M').time() ] ]
+        #TODO: from "--open tareator--" to "--close tareator--"? from "--open tareator--" to "--commited until here--"?
     return intervals
 
 def round_time(t):
@@ -102,7 +103,8 @@ def edit_commit(dtime, register_file, publisher_function):
         lines = list( reader )
         for i,line in enumerate(reversed(lines)): # reading from most recent lines
             if not line[1]=="--committed until here--": # 1. get actions until "--committed--" line found:
-                actions.append([ datetime.strptime(line[0], '%Y-%m-%dT%H:%M:%S'), line[1].replace('"', "'") ]) # like [2020-02-02T10:00:00, 'report made']
+                if not line[1]=="--open tareator--" and not line[1]=="--close tareator--":
+                    actions.append([ datetime.strptime(line[0], '%Y-%m-%dT%H:%M:%S'), line[1].replace('"', "'") ]) # like [2020-02-02T10:00:00, 'report made']
                 if i==len(lines)-1:
                     commit()
             else:

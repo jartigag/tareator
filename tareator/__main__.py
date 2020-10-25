@@ -22,6 +22,9 @@ def init():
     open(tasks_file,'a+').close() # touch
     open(register_file,'a+').close() # touch
 
+    now = datetime.now().replace(microsecond=0)
+    write_register_file('--open tareator--', now)
+
     # support both styles on a tasks-list:
     symbol = '[x]'
     alt_symbol = '- [x]'
@@ -304,7 +307,8 @@ def print_register(register_file):
         lines = list( reader )
         for line in reversed( lines ): # reading from most recent lines
             if not line[1]=="--committed until here--": # read until "--committed--" line found:
-                printable.append(f"{line[0]},{line[1]}")
+                if not line[1]=="--open tareator--" and not line[1]=="--close tareator--":
+                    printable.append(f"{line[0]},{line[1]}")
             else:
                 break
     for p in reversed(printable): # printing in chronological order (from oldest to newest)
@@ -313,8 +317,10 @@ def print_register(register_file):
 def undo(register_file):
     with open(register_file) as f:
         lines = f.readlines()
-        last_line = lines[-1]
-        confirmation = input(f"última acción:\n{last_line}eliminar esta acción? [S/n]").lower()
+        undoable_lines = lines
+        while lines[-1].split(',')[1]=="--open tareator--" or lines[-1].split(',')[1]=="--close tareator--":
+            undoable_lines = undoable_lines[:-1]
+        confirmation = input(f"última acción:\n{undoable_lines[-1]}eliminar esta acción? [S/n]").lower()
         if confirmation.startswith('s') or confirmation.startswith('y') or confirmation=="":
             lines = lines[:-1]
             with open(register_file,"w") as f:
@@ -403,5 +409,7 @@ if __name__ == '__main__':
             print()
             sys.exit()
         except KeyboardInterrupt:
+            now = datetime.now().replace(microsecond=0)
+            write_register_file('--close tareator--', now)
             print()
             sys.exit()
