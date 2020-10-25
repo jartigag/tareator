@@ -3,6 +3,10 @@ import csv
 import string
 from datetime import datetime, timedelta
 
+def register2echo(project, note, start_time, end_time):
+    s, e = ( datetime.strftime(x, '%H:%M') if x.date()==datetime.today().date() else x.isoformat() for x in [start_time, end_time] )  # if today, just time. else, isoformat
+    return f'''echo "{note} from {s} to {e}{ ' #'+project if project else '' }"'''
+
 def register2shptime(project, note, start_time, end_time):
     if not project:
         project = 'Otros' # project by default
@@ -46,7 +50,7 @@ def round_time(t):
     rounded_t = t+timedelta(minutes=15)-discarded_difference if discarded_difference >= timedelta(minutes=15/2) else t-discarded_difference
     return rounded_t
 
-def dump_commit(actions):
+def dump_commit(actions, publisher_function):
     intervals = get_interval_hours()
     days = sorted(set( a[0].date() for a in actions ))
 
@@ -72,34 +76,38 @@ def dump_commit(actions):
                     end_time = round_time(action[0]) if i<len(actual_day_actions)-1 else round_time(actual_day_intervals[n][1])
                     note = action[1]
                     project = alias_from_text(note)
-                    cf.write(f"{ register2shptime( project, note, start_time, end_time ) }\n")
+                    cf.write(f"{ globals()[publisher_function]( project, note, start_time, end_time ) }\n") # by default, globals()['register2shptime']
                     # set next start_time:
                     start_time = end_time
                 else:
                     note = action[1]
                     project = alias_from_text(note)
-                    cf.write(f"{ register2shptime( project, note, start_time, end_time ) }\n")
+                    cf.write(f"{ globals()[publisher_function]( project, note, start_time, end_time ) }\n") # by default, globals()['register2shptime']
                     # set next interval:
                     if n<len(actual_day_intervals)-1:
                         n+=1
                     else:
                         break
 
-def edit_commit(dtime, register_file):
+def edit_commit(dtime, register_file, publisher_function):
     actions = []
+    def commit():
+        dump_commit(actions, publisher_function)
+        os.system( "editor commit.tmp" )
+        push_commit()
+        writer = csv.writer(f, lineterminator="\n")
+        writer.writerow([dtime.isoformat(), "--committed until here--"])
     with open(register_file,"r+", newline='') as f:
         reader = csv.reader(f)
         lines = list( reader )
-        for line in reversed( lines ): # reading from most recent lines
-            if not line[1]=="--committed until here--": # 1. get actions until "--commited--" line found:
+        for i,line in enumerate(reversed(lines)): # reading from most recent lines
+            if not line[1]=="--committed until here--": # 1. get actions until "--committed--" line found:
                 actions.append([ datetime.strptime(line[0], '%Y-%m-%dT%H:%M:%S'), line[1].replace('"', "'") ]) # like [2020-02-02T10:00:00, 'report made']
+                if i==len(lines)-1:
+                    commit()
             else:
                 if len(actions)>0:                      # 2. dump actions on 'commit.tmp', edit it and push it:
-                    dump_commit(actions)
-                    os.system( "editor commit.tmp" )
-                    push_commit()
-                    writer = csv.writer(f, lineterminator="\n")
-                    writer.writerow([dtime.isoformat(), "--committed until here--"])
+                    commit()
                 else:
                     print("[-] nada para hacer commit")
                 break

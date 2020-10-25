@@ -9,10 +9,10 @@ import csv
 from datetime import datetime
 from .timetracker import edit_commit, prompt_commands, complete_commands
 
-tasks_file = 'README.md' if len(sys.argv)==1 else sys.argv[1]
+tasks_file = sys.argv[1] if len(sys.argv)>1 else 'README.md'
 tasks_file_basename = path.basename(tasks_file)
-
 register_file = path.dirname(tasks_file) + '/register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(tasks_file_basename)[0])
+publisher_function = sys.argv[2] if len(sys.argv)>2 else 'register2shptime'
 
 mark = {}
 
@@ -303,7 +303,7 @@ def print_register(register_file):
         reader = csv.reader(f)
         lines = list( reader )
         for line in reversed( lines ): # reading from most recent lines
-            if not line[1]=="--committed until here--": # read until "--commited--" line found:
+            if not line[1]=="--committed until here--": # read until "--committed--" line found:
                 printable.append(f"{line[0]},{line[1]}")
             else:
                 break
@@ -330,7 +330,7 @@ def add_tasks_title(title):
 
 def parse_commands(opt):
     if opt=="/commit":
-        edit_commit( now, register_file )
+        edit_commit( now, register_file, publisher_function )
     elif opt=="/intervalos":
         system( "editor intervals.template" ) #tip: editor can be set with `$ sudo update-alternatives --config editor` or `export EDITOR="vim"` in .bashrc
     elif opt=="/registro":
