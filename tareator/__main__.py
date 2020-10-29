@@ -238,7 +238,7 @@ def write_tasks_file(new_task = {'task': '', 'status': '', 'title': ''}):
     system(f'perl -0pe "s/## /\\n## /g" -i {tasks_file}.tmp') # add one line before titles
     system(f'perl -0pe "s/^(##).*\\n\\n//gm" -i {tasks_file}.tmp') # remove titles without subtasks
 
-    system(f'mv {tasks_file}.tmp {tasks_file}')
+    system(f'cat {tasks_file}.tmp > {tasks_file} && rm {tasks_file}.tmp') # to keep same inode (symbolic links)
 
 def write_register_file(action, dtime):
     with open(register_file,"a",newline='') as f: # if newline='' is not specified, newlines embedded inside quoted fields will not be interpreted correctly [..]
@@ -295,7 +295,7 @@ def clear_dones():
         for line in readf.readlines():
             if not line.startswith(mark['done']):
                 writef.write(line)
-        system(f"mv {tasks_file}.tmp {tasks_file}")
+    system(f'cat {tasks_file}.tmp > {tasks_file} && rm {tasks_file}.tmp') # to keep same inode (symbolic links)
     write_tasks_file() # to clear empty titles
     reload_screen()
     print(f"{green('[+]')} has limpiado las tareas completadas")
@@ -368,6 +368,8 @@ if __name__ == '__main__':
                 print(f"{bold('qué estás haciendo?')} ('h' para mostrar la ayuda, Intro para recargar)")
                 print(">> hh")
                 print(hhelp_msg)
+            elif opt=="e":
+                system(f"editor {tasks_file}")
             elif opt.isdigit():
                 if int(opt)<len(tasks):
                     action = mark_as_done( int(opt), now )
