@@ -408,6 +408,8 @@ if __name__ == '__main__':
             if action:
                 write_register_file( action, now )
         except EOFError:
+            now = datetime.now().replace(microsecond=0)
+            write_register_file('--close tareator--', now)
             print()
             sys.exit()
         except KeyboardInterrupt:
