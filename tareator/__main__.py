@@ -370,6 +370,8 @@ if __name__ == '__main__':
                 print(hhelp_msg)
             elif opt=="e":
                 system(f"editor {tasks_file}")
+            elif opt=="r":
+                system(f"editor {register_file}")
             elif opt.isdigit():
                 if int(opt)<len(tasks):
                     action = mark_as_done( int(opt), now )
