@@ -11,7 +11,7 @@ from .timetracker import edit_commit, prompt_commands, complete_commands
 
 tasks_file = sys.argv[1] if len(sys.argv)>1 else 'README.md'
 tasks_file_basename = path.basename(tasks_file)
-register_file = path.dirname(tasks_file) + '/register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(tasks_file_basename)[0])
+register_file = path.join( path.dirname(tasks_file), 'register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(tasks_file_basename)[0]) )
 silent_flag = False
 
 mark = {}
