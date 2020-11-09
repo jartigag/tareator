@@ -1,6 +1,6 @@
 #!/bin/bash
 #author: @jartigag
-#date: 23/10/2020
+#date: 09/11/2020
 
 #usage: just `./install.sh`
 #       or `./install.sh my_tasks.md` if you want to make my_tasks.md as your tasks-list by default
@@ -14,7 +14,7 @@ cat << EOF > /tmp/tareator
 tasks_file=\`readlink -f \${1:-'$default_tasks_file'}\`
 
 cd $(pwd)
-python3 -m tareator "\$tasks_file"
+python3 -m tareator "\$tasks_file" "\${@:2}"
 EOF
 
 echo "Generating /usr/bin/tareator... (may ask for sudo password)"
