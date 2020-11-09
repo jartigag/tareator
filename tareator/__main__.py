@@ -12,18 +12,35 @@ from .timetracker import edit_commit, prompt_commands, complete_commands
 tasks_file = sys.argv[1] if len(sys.argv)>1 else 'README.md'
 tasks_file_basename = path.basename(tasks_file)
 register_file = path.dirname(tasks_file) + '/register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(tasks_file_basename)[0])
-publisher_function = sys.argv[2] if len(sys.argv)>2 else 'register2shptime'
+silent_flag = False
 
 mark = {}
 
 def init():
-    global mark
+    global mark, silent_flag
 
     open(tasks_file,'a+').close() # touch
     open(register_file,'a+').close() # touch
 
+    if len(sys.argv)>2:
+        if sys.argv[2] in ("-s","--silent"):
+            silent_flag = True
+            publisher_function = 'register2shptime'
+        else:
+            if len(sys.argv)>3:
+                if sys.argv[3] in ("-s","--silent"):
+                    silent_flag = True
+                    publisher_function = sys.argv[3]
+                else:
+                    publisher_function = sys.argv[2]
+            else:
+                publisher_function = sys.argv[2]
+    else:
+        publisher_function = 'register2shptime'
+
     now = datetime.now().replace(microsecond=0)
-    write_register_file('--open tareator--', now)
+    if not silent_flag:
+        write_register_file('--open tareator--', now)
 
     # support both styles on a tasks-list:
     symbol = '[x]'
@@ -411,11 +428,13 @@ if __name__ == '__main__':
                 write_register_file( action, now )
         except EOFError:
             now = datetime.now().replace(microsecond=0)
-            write_register_file('--close tareator--', now)
+            if not silent_flag:
+                write_register_file('--close tareator--', now)
             print()
             sys.exit()
         except KeyboardInterrupt:
             now = datetime.now().replace(microsecond=0)
-            write_register_file('--close tareator--', now)
+            if not silent_flag:
+                write_register_file('--close tareator--', now)
             print()
             sys.exit()
