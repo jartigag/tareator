@@ -12,6 +12,7 @@ from .timetracker import edit_commit, prompt_commands, complete_commands
 tasks_file = sys.argv[1] if len(sys.argv)>1 else 'README.md'
 tasks_file_basename = path.basename(tasks_file)
 register_file = path.join( path.dirname(tasks_file), 'register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(tasks_file_basename)[0]) )
+publisher_function = 'register2shptime'
 silent_flag = False
 
 mark = {}
@@ -25,18 +26,6 @@ def init():
     if len(sys.argv)>2:
         if sys.argv[2] in ("-s","--silent"):
             silent_flag = True
-            publisher_function = 'register2shptime'
-        else:
-            if len(sys.argv)>3:
-                if sys.argv[3] in ("-s","--silent"):
-                    silent_flag = True
-                    publisher_function = sys.argv[3]
-                else:
-                    publisher_function = sys.argv[2]
-            else:
-                publisher_function = sys.argv[2]
-    else:
-        publisher_function = 'register2shptime'
 
     now = datetime.now().replace(microsecond=0)
     if not silent_flag:
