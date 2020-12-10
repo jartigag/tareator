@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-#author: @jartigag
-#date: 10/09/2020
-#version: 1.0
+
+__version__ = "1.1"
+__author__ = "@jartigag"
+__url__ = "https://github.com/jartigag/tareator"
 
 import sys
 from os import system, path
@@ -82,7 +83,7 @@ advanced_list_commands = f"""
 {bold('#5*nueva subtarea')}           añade "nueva subtarea" al conjunto de subtareas 5"""
 
 hhelp_msg = f"""
-tareator v1.0, de @jartigag (https://github.com/jartigag/tareator)
+tareator v{__version__}, de {__author__} ({__url__})
 -----
 
 escribí este script para solventar dos requerimientos comunes en una jornada laboral:
