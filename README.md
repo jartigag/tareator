@@ -43,10 +43,8 @@ Se hace una explicación un poco más desarrollada en [este post](https://jartig
 
 ## v2.0
 
-### Opciones ocultas
-- [x] --{open,close} tareator--
+### Funcionalidades ocultas
+- [x] Registrar "--{open,close} tareator--"
 - [x] e (abrir `tareas.md` en editor)
 - [x] r (abrir `register.csv` en editor)
 - [x] --silent flag
-
-### Integración
