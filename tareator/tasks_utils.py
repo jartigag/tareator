@@ -95,12 +95,12 @@ def write_tasks_file(tasks, marks, tasks_file, new_task = {'task': '', 'status':
                 if len(splitted_line)>1:
                     if splitted_line[0].strip()=="##":
                         if in_the_title:
-                        # we're about to enter on a different subtasks section,
+                        # 2. we're about to enter on a different subtasks section,
                         # so write the new subtask at the bottom of this subtasks section
                             if new_task['task']!='': outf.write(f"{marks['to-do']} {new_task['task']}\n")
                             in_the_title = False
                         if new_task['task']!='' and new_task['title']==" ".join(splitted_line[1:]):
-                        # we're on the right subtasks section, so activate the flag..
+                        # 1. we're on the right subtasks section, so activate the flag..
                             in_the_title = True
 
                 for i_t,t in enumerate(subtasks):
