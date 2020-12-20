@@ -27,7 +27,7 @@ sudo chmod +x /usr/bin/tareator
 # they can be easily virtualenv-ed here ( `python3 -m tareator "$@"` )
 
 #tip:
-# you may be interested in adding shorcuts like this to your .bash_aliases:
+# you may be interested in adding shorcuts like these to your .bash_aliases:
 #
 # alias tp='tareator ~/.tareator/tareas-personal.md'
 # alias tt='tareator ~/.tareator/tareas-trabajo.md'
