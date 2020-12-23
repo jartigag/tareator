@@ -1,7 +1,7 @@
 import csv
 from os import system
 from .timetracker import edit_commit
-from .tasks_utils  import bold, red, green
+from .tasks_utils import bold, red, green
 from .tasks_utils import reload_screen, write_tasks_file
 
 def parse_commands(opt, now, marks, tasks, tasks_file, register_file, publisher_function):
