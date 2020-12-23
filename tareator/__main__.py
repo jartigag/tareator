@@ -134,6 +134,35 @@ def confirm_action(action, dtime):
         print(f"{red('[-]')} no añadido")
         return False
 
+def parse_chars(opt, marks, tasks, subtasks_titles, tasks_file):
+    action = False
+    if opt[0]=="*":
+        add_task( opt[1:].strip(), tasks_file, tasks, marks )
+    elif opt[0]==".":
+        if opt[1:].isdigit():
+            if int(opt[1:])<len(tasks):
+                action = mark_as_wip( int(opt[1:]), now, tasks_file, tasks, marks )
+            else:
+                print(f"{red('[!]')} número inválido")
+        else:
+            print(f"{red('[!]')} número inválido")
+    elif opt[0]=="#":
+        if opt[1]=="*":
+            add_task( opt[2:].strip(), tasks_file, tasks, marks, subtasks_titles[-1] )
+        elif "*" in opt[1:]:
+            if opt[1:opt.index("*")].isdigit():
+                if int(opt[1:opt.index("*")])<len(subtasks_titles):
+                    add_task( opt[3:].strip(), tasks_file, tasks, marks, subtasks_titles[ int(opt[1:opt.index("*")]) ] )
+                else:
+                    print(f"{red('[!]')} número inválido")
+            else:
+                print(f"{red('[!]')} número inválido")
+        else:
+            add_tasks_title( opt[1:].strip(), tasks_file, marks )
+    else:
+        action = confirm_action( opt, now )
+    return action
+
 if __name__ == '__main__':
     marks, silent_flag = init()
     tasks, subtasks_titles = reload_screen(tasks_file, marks)
@@ -146,7 +175,7 @@ if __name__ == '__main__':
             except ImportError:
                 opt = complete_commands(commands_list)
             now = datetime.now().replace(microsecond=0)
-            #TODO: extract this ifs tower as a function
+
             if opt=="h":
                 tasks, subtasks_titles = reload_screen(tasks_file, marks)
                 print(f"{bold('qué estás haciendo?')} ('h' para mostrar la ayuda, Intro para recargar)")
@@ -169,35 +198,13 @@ if __name__ == '__main__':
             elif opt in commands_list:
                 parse_commands(opt, now, marks, tasks, tasks_file, register_file, publisher_function)
             elif len(opt)>1:
-                if opt[0]=="*":
-                    add_task( opt[1:].strip(), tasks_file, tasks, marks )
-                elif opt[0]==".":
-                    if opt[1:].isdigit():
-                        if int(opt[1:])<len(tasks):
-                            action = mark_as_wip( int(opt[1:]), now, tasks_file, tasks, marks )
-                        else:
-                            print(f"{red('[!]')} número inválido")
-                    else:
-                        print(f"{red('[!]')} número inválido")
-                elif opt[0]=="#":
-                    if opt[1]=="*":
-                        add_task( opt[2:].strip(), tasks_file, tasks, marks, subtasks_titles[-1] )
-                    elif "*" in opt[1:]:
-                        if opt[1:opt.index("*")].isdigit():
-                            if int(opt[1:opt.index("*")])<len(subtasks_titles):
-                                add_task( opt[3:].strip(), tasks_file, tasks, marks, subtasks_titles[ int(opt[1:opt.index("*")]) ] )
-                            else:
-                                print(f"{red('[!]')} número inválido")
-                        else:
-                            print(f"{red('[!]')} número inválido")
-                    else:
-                        add_tasks_title( opt[1:].strip() )
-                else:
-                    action = confirm_action( opt, now )
+                action = parse_chars(opt, marks, tasks, subtasks_titles, tasks_file)
             else:
                 tasks, subtasks_titles = reload_screen(tasks_file, marks)
+
             if action:
                 write_register_file( action, now )
+
         except EOFError:
             now = datetime.now().replace(microsecond=0)
             if not silent_flag:

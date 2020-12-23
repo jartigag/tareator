@@ -162,7 +162,7 @@ def mark_as_wip(i, dtime, tasks_file, tasks, marks):
         print(f"{red('[!]')} '{tasks[i]['task'].strip()}' ya está marcada como hecha")
         return False
 
-def add_tasks_title(title):
+def add_tasks_title(title, tasks_file, marks):
     with open(tasks_file, 'a') as f:
         f.write(f"\n## {title}\n")
     reload_screen(tasks_file, marks)

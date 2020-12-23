@@ -15,7 +15,6 @@ def parse_commands(opt, now, marks, tasks, tasks_file, register_file, publisher_
         clear_dones(marks, tasks, tasks_file)
     elif opt=="/deshacer":
         undo( register_file )
-    return opt
 
 def print_register(register_file):
     printable = []
