@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-__version__ = "1.1"
+__version__ = "1.2"
 __author__ = "@jartigag"
 __url__ = "https://github.com/jartigag/tareator"
 
