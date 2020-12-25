@@ -11,7 +11,7 @@ from datetime import datetime
 
 from .commands import parse_commands, prompt_commands, complete_commands
 from .tasks_utils import bold, red, green
-from .tasks_utils import reload_screen, add_task, mark_as_done, mark_as_wip, add_tasks_title
+from .tasks_utils import Tasks
 
 tasks_file = sys.argv[1] if len(sys.argv)>1 else 'README.md'
 register_file = path.join( path.dirname(tasks_file), 'register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(path.basename(tasks_file))[0]) )
@@ -127,45 +127,45 @@ def write_register_file(action, dtime):
 def confirm_action(action, dtime):
     confirmation = input(f"registrar acción '{action}'? [S/n]").lower()
     if confirmation.startswith('s') or confirmation.startswith('y') or confirmation=="":
-        reload_screen(tasks_file, marks)
+        t.read_tasks_file()
         print(f"{green('[+]')} has registrado '{action}' a las { dtime.time().isoformat() }")
         return f"[+] {action}"
     else:
         print(f"{red('[-]')} no añadido")
         return False
 
-def parse_chars(opt, marks, tasks, subtasks_titles, tasks_file):
+def parse_chars(opt, t):
     action = False
     if opt[0]=="*":
-        add_task( opt[1:].strip(), tasks_file, tasks, marks )
+        t.add_task( opt[1:].strip())
     elif opt[0]==".":
         if opt[1:].isdigit():
-            if int(opt[1:])<len(tasks):
-                action = mark_as_wip( int(opt[1:]), now, tasks_file, tasks, marks )
+            if int(opt[1:])<len(t.tasks):
+                action = t.mark_as_wip( int(opt[1:]), now )
             else:
                 print(f"{red('[!]')} número inválido")
         else:
             print(f"{red('[!]')} número inválido")
     elif opt[0]=="#":
         if opt[1]=="*":
-            add_task( opt[2:].strip(), tasks_file, tasks, marks, subtasks_titles[-1] )
+            t.add_task( opt[2:].strip(), t.subtasks_titles[-1] )
         elif "*" in opt[1:]:
             if opt[1:opt.index("*")].isdigit():
-                if int(opt[1:opt.index("*")])<len(subtasks_titles):
-                    add_task( opt[3:].strip(), tasks_file, tasks, marks, subtasks_titles[ int(opt[1:opt.index("*")]) ] )
+                if int(opt[1:opt.index("*")])<len(t.subtasks_titles):
+                    t.add_task( opt[3:].strip(), t.subtasks_titles[ int(opt[1:opt.index("*")]) ] )
                 else:
                     print(f"{red('[!]')} número inválido")
             else:
                 print(f"{red('[!]')} número inválido")
         else:
-            add_tasks_title( opt[1:].strip(), tasks_file, marks )
+            t.add_tasks_title( opt[1:].strip() )
     else:
         action = confirm_action( opt, now )
     return action
 
 if __name__ == '__main__':
     marks, silent_flag = init()
-    tasks, subtasks_titles = reload_screen(tasks_file, marks)
+    t = Tasks(tasks_file, marks)
     while True:
         print(f"{bold('qué estás haciendo?')} ('h' para mostrar la ayuda, Intro para recargar)")
         try:
@@ -177,12 +177,12 @@ if __name__ == '__main__':
             now = datetime.now().replace(microsecond=0)
 
             if opt=="h":
-                tasks, subtasks_titles = reload_screen(tasks_file, marks)
+                t.read_tasks_file()
                 print(f"{bold('qué estás haciendo?')} ('h' para mostrar la ayuda, Intro para recargar)")
                 print(">> h")
                 print(help_msg)
             elif opt=="hh":
-                tasks, subtasks_titles = reload_screen(tasks_file, marks)
+                t.read_tasks_file()
                 print(f"{bold('qué estás haciendo?')} ('h' para mostrar la ayuda, Intro para recargar)")
                 print(">> hh")
                 print(hhelp_msg)
@@ -191,19 +191,19 @@ if __name__ == '__main__':
             elif opt=="r":
                 system(f"editor {register_file}")
             elif opt.isdigit():
-                if int(opt)<len(tasks):
-                    action = mark_as_done( int(opt), now, tasks_file, tasks, marks )
+                if int(opt)<len(t.tasks):
+                    action = t.mark_as_done(int(opt), now)
                 else:
                     print(f"{red('[!]')} número inválido")
             elif opt in commands_list:
-                parse_commands(opt, now, marks, tasks, tasks_file, register_file, publisher_function)
+                parse_commands(opt, now, t, register_file, publisher_function)
             elif len(opt)>1:
-                action = parse_chars(opt, marks, tasks, subtasks_titles, tasks_file)
+                action = parse_chars(opt, t)
             else:
-                tasks, subtasks_titles = reload_screen(tasks_file, marks)
+                t.read_tasks_file()
 
             if action:
-                write_register_file( action, now )
+                write_register_file(action, now)
 
         except EOFError:
             now = datetime.now().replace(microsecond=0)
