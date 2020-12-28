@@ -4,14 +4,14 @@ def bold(text): return f"\033[1m{text}\033[0m"
 def red(text): return f"\033[1;31m{text}\033[0m"
 def green(text): return f"\033[1;32m{text}\033[0m"
 
-basic_list_commands = f"""
+basic_taskscommands = f"""
 {bold('lo que acabo de hacer')}       añade "lo que acabo de hacer" al registro de acciones
 
 {bold('*una tarea pendiente')}        añade "una tarea pendiente" a la lista de tareas
 {bold('1')}                           marca la tarea pendiente 1 como hecha
 {bold('.5')}                          marca la tarea 5 como en progreso (si había otra en progreso, esa vuelve a pendiente)"""
 
-advanced_list_commands = f"""
+advanced_taskscommands = f"""
 {bold('#un conjunto de subtareas')}   añade "un conjunto de subtareas" como título para varias subtareas
 {bold('#*una subtarea pendiente')}    añade "una subtarea pendiente" como subtarea del último conjunto
 {bold('#5*nueva subtarea')}           añade "nueva subtarea" al conjunto de subtareas 5"""

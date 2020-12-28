@@ -16,7 +16,7 @@ from .commands    import parse_commands, prompt_commands, complete_commands
 from .tasks_utils import bold, red, green
 #variables:
 from .commands    import commands_list, timetracker_commands
-from .tasks_utils import basic_list_commands, advanced_list_commands
+from .tasks_utils import basic_taskscommands, advanced_taskscommands
 
 tasks_file = sys.argv[1] if len(sys.argv)>1 else 'README.md'
 register_file = path.join( path.dirname(tasks_file), 'register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(path.basename(tasks_file))[0]) )
@@ -50,7 +50,7 @@ def init(silent_flag=False):
     return marks, silent_flag
 
 help_msg = f"""la herramienta "tareator" responde interactivamente a lo que escribas. por ejemplo:
-{basic_list_commands}
+{basic_taskscommands}
 {timetracker_commands}
 
 escribe 'hh' para mostrar la ayuda más detallada.
@@ -89,11 +89,11 @@ además, también se pueden usar {bold('conjuntos de subtareas')} para agrupar t
 esto puede ayudar a nivel organizativo, si quieres tener varias listas en un único fichero (por ejemplo,
 tareas.md). por lo demás, funcionan igual.
 
-== COMANDOS BÁSICOS DE LISTAS:{basic_list_commands}
+== COMANDOS BÁSICOS DE TAREAS:{basic_taskscommands}
 
 == COMANDOS DE TIMETRACKER:{timetracker_commands}
 
-== COMANDOS AVANZADOS DE LISTAS:{advanced_list_commands}
+== COMANDOS AVANZADOS DE TAREAS:{advanced_taskscommands}
 """
 
 def write_register_file(action, dtime):
