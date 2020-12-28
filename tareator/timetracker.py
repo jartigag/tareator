@@ -1,6 +1,6 @@
-import os
 import csv
 import string
+from os import system
 from datetime import datetime, timedelta
 
 def register2echo(project, note, start_time, end_time):
@@ -15,8 +15,8 @@ def register2shptime(project, note, start_time, end_time):
 
 def push_commit():
     try:
-        os.system("sh commit.tmp")
-        os.system("rm commit.tmp")
+        system("sh commit.tmp")
+        system("rm commit.tmp")
     except Exception:
         print("[-] error")
 
@@ -94,7 +94,7 @@ def edit_commit(dtime, register_file, publisher_function):
     actions = []
     def commit():
         dump_commit(actions, publisher_function)
-        os.system( "editor commit.tmp" )
+        system( "editor commit.tmp" )
         push_commit()
         writer = csv.writer(f, lineterminator="\n")
         writer.writerow([dtime.isoformat(), "--committed until here--"])
@@ -113,29 +113,3 @@ def edit_commit(dtime, register_file, publisher_function):
                 else:
                     print("[-] nada para hacer commit")
                 break
-
-def prompt_commands(commands_list):
-    try:
-        from prompt_toolkit.completion import FuzzyWordCompleter
-        from prompt_toolkit.shortcuts import prompt
-        raise ImportError
-        commands = FuzzyWordCompleter(commands_list)
-        opt = prompt(">> ", completer=commands, complete_while_typing=True)
-        return opt
-    except ImportError:
-        raise ImportError
-
-def complete_commands(commands_list):
-    import readline
-    commands = commands_list
-    def completer(text, i):
-        command = [c for c in commands if c.startswith(text)]
-        try:
-            return command[i]
-        except IndexError:
-            return None
-    readline.set_completer(completer)
-    readline.parse_and_bind("tab: complete")
-    readline.set_completer_delims('') # so '/' inside commands works correctly
-    opt = input(">> ")
-    return opt
