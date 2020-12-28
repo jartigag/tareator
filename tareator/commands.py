@@ -1,9 +1,20 @@
 import csv
 from os import system
 from .timetracker import edit_commit
-from .tasks_utils  import bold, red, green
+from .tasks_utils import bold, red, green
 
-def parse_commands(opt, now, t, register_file, publisher_function):
+commands_list = ["/registro", "/commit", "/intervalos", "/clear", "/deshacer"]
+
+publisher_function = 'register2shptime'
+
+timetracker_commands = f"""
+{bold('/registro')}                   imprime las acciones registradas desde el último commit
+{bold('/commit')}                     revisa y publica las últimas tareas con {publisher_function}
+{bold('/intervalos')}                 edita los intervalos por defecto de tu jornada laboral
+{bold('/clear')}                      elimina de la lista las tareas completadas
+{bold('/deshacer')}                   elimina la última acción del registro de acciones"""
+
+def parse_commands(opt, now, t, register_file):
     if opt=="/commit":
         edit_commit( now, register_file, publisher_function )
     elif opt=="/intervalos":

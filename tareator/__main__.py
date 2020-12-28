@@ -9,14 +9,17 @@ import csv
 from os import system, path
 from datetime import datetime
 
-from .commands import parse_commands, prompt_commands, complete_commands
-from .tasks_utils import bold, red, green
+#class:
 from .tasks_utils import Tasks
+#functions:
+from .commands    import parse_commands, prompt_commands, complete_commands
+from .tasks_utils import bold, red, green
+#variables:
+from .commands    import commands_list, timetracker_commands
+from .tasks_utils import basic_list_commands, advanced_list_commands
 
 tasks_file = sys.argv[1] if len(sys.argv)>1 else 'README.md'
 register_file = path.join( path.dirname(tasks_file), 'register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(path.basename(tasks_file))[0]) )
-
-publisher_function = 'register2shptime'
 
 def init(silent_flag=False):
     open(tasks_file,'a+').close() # touch
@@ -50,33 +53,12 @@ def init(silent_flag=False):
 
     return marks, silent_flag
 
-commands_list = ["/registro", "/commit", "/intervalos", "/clear", "/deshacer"]
-
-basic_list_commands = f"""
-{bold('lo que acabo de hacer')}       añade "lo que acabo de hacer" al registro de acciones
-
-{bold('*una tarea pendiente')}        añade "una tarea pendiente" a la lista de tareas
-{bold('1')}                           marca la tarea pendiente 1 como hecha
-{bold('.5')}                          marca la tarea 5 como en progreso (si había otra en progreso, esa vuelve a pendiente)"""
-
-timetracker_commands = f"""
-{bold('/registro')}                   imprime las acciones registradas desde el último commit
-{bold('/commit')}                     revisa y publica las últimas tareas con {publisher_function}
-{bold('/intervalos')}                 edita los intervalos por defecto de tu jornada laboral
-{bold('/clear')}                      elimina de la lista las tareas completadas
-{bold('/deshacer')}                   elimina la última acción del registro de acciones"""
-
 help_msg = f"""la herramienta "tareator" responde interactivamente a lo que escribas. por ejemplo:
 {basic_list_commands}
 {timetracker_commands}
 
 escribe 'hh' para mostrar la ayuda más detallada.
 """
-
-advanced_list_commands = f"""
-{bold('#un conjunto de subtareas')}   añade "un conjunto de subtareas" como título para varias subtareas
-{bold('#*una subtarea pendiente')}    añade "una subtarea pendiente" como subtarea del último conjunto
-{bold('#5*nueva subtarea')}           añade "nueva subtarea" al conjunto de subtareas 5"""
 
 hhelp_msg = f"""
 tareator v{__version__}, de {__author__} ({__url__})
@@ -196,7 +178,7 @@ if __name__ == '__main__':
                 else:
                     print(f"{red('[!]')} número inválido")
             elif opt in commands_list:
-                parse_commands(opt, now, t, register_file, publisher_function)
+                parse_commands(opt, now, t, register_file)
             elif len(opt)>1:
                 action = parse_chars(opt, t)
             else:
