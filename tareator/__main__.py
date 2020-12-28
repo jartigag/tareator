@@ -36,15 +36,11 @@ def init(silent_flag=False):
     # support both styles on a tasks-list:
     symbol = '[x]'
     alt_symbol = '- [x]'
-    alt_symbol2 = '- [x]:'
     with open(tasks_file) as f:
         fi = f.read()
         if any( alt_symbol.replace('x',c) in fi for c in 'x/ '):
         #                                   [x], [/], [ ] ^^^
             symbol = alt_symbol
-        if any( alt_symbol2.replace('x',c) in fi for c in 'x/ '):
-        #                                    [x], [/], [ ] ^^^
-            symbol = alt_symbol2
     marks = {
         'done': symbol,
         'wip': symbol.replace('x','/'),
