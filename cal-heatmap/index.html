@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Cal-HeatMap : Javascript calendar heatmap for time series data</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="Cal-Heatmap is a javascript module to create calendar heatmap to visualize time series data">
+    <meta name="keywords" content="cal-heatmap, calendar, heatmap, d3.js, time series data, graph">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+    <link href="./css/font-awesome.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/cal-heatmap.css?v=3.5.1" />
+    <link rel="stylesheet" href="./css/main.css?v=3.3.11" />
+    <link href='//fonts.googleapis.com/css?family=Exo:400,800,600,400italic' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Titillium+Web:400,400italic,700italic,700' rel='stylesheet' type='text/css'>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+    <script type="text/javascript" src="./js/cal-heatmap.min.js?v=3.5.1"></script>
+    <script type="text/javascript" src="./js/moment.min.js"></script>
+    <script type="text/javascript" src="./js/lang.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script type="text/javascript" src="https://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="example clearfix full-width">
+        <p>#Data1: Year > day view.</p>
+
+        <div>
+            <div id="example-d1"></div>
+            <p></p>
+            <script>
+                (function() {
+var cal = new CalHeatMap();
+cal.init({
+    itemSelector: "#example-d1",
+    domain: "year",
+    subDomain: "day",
+    data: "data1.json",
+    start: new Date(2020, 0),
+    cellSize: 10,
+    range: 1,
+    legend: [4, 8, 12, 16]
+});
+                })();
+            </script>
+        </div>
+    </div>
+
+    <div class="example clearfix full-width">
+        <p>#Data2: Week > day view.</p>
+
+        <p>Hover on a subDomain cell to view the date</p>
+
+        <div>
+            <button id="example-g-PreviousDomain-selector" style="margin-bottom: 10px;" class="btn"><i class="icon icon-chevron-left"></i></button>
+            <button id="example-g-NextDomain-selector" style="margin-bottom: 10px;" class="btn"><i class="icon icon-chevron-right"></i></button>
+            <div id="example-g"></div>
+            <p></p>
+            <style>
+                #example-g .graph-label {
+                    font-weight: bold;
+                    font-size: 18px;
+                }
+
+
+                #example-g .subdomain-text {
+                    fill: #fff;
+                    opacity: 0;
+                }
+
+                #example-g g:hover .subdomain-text {
+                    opacity: 1;
+                }
+
+            </style>
+            <script>
+                (function() {
+var cal = new CalHeatMap();
+cal.init({
+    itemSelector: "#example-g",
+    domain: "month",
+    subDomain: "x_day",
+    data: "data2.json",
+    start: new Date(2020, 9),
+    cellSize: 20,
+    cellPadding: 5,
+    domainGutter: 20,
+    range: 3,
+    domainDynamicDimension: false,
+    previousSelector: "#example-g-PreviousDomain-selector",
+    nextSelector: "#example-g-NextDomain-selector",
+    domainLabelFormat: function(date) {
+        moment.lang("en");
+        return moment(date).format("MMMM").toUpperCase();
+    },
+    subDomainTextFormat: "%d",
+    legend: [4, 8, 12, 16]
+});
+                })();
+            </script>
+        </div>
+    </div>
+
+</div>
+
+<script src="./js/prism.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $(".example > div").each(function(){
+
+            var code = $(this).find("script");
+            $(this).append("<div class=source>");
+            var sourceDiv = $(this).find(".source");
+
+            if (code.length > 0) {
+                sourceDiv.append("<button class=\"btn btn-small\"><i class='icon icon-indent-right'></i> View code</button>");
+
+                sourceDiv.find("button").on("click", function(e) {
+                    var source = code.html();
+                    source = source.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace('(function() {', '').replace('})();', '');
+
+                    sourceDiv.append("<pre><code class='language-javascript'>" + source.trim() + "</code></pre>");
+                    Prism.highlightElement(sourceDiv.find("code")[0]);
+
+                    $(this).remove();
+                });
+            }
+        });
+
+    });
+</script>
+
+</body>
+</html>

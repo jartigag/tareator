@@ -48,3 +48,8 @@ Se hace una explicación un poco más desarrollada en [este post](https://jartig
 - [x] e (abrir `tareas.md` en editor)
 - [x] r (abrir `register.csv` en editor)
 - [x] --silent flag
+
+### Visualización
+- [/] Demo mínima con cal-heatmap
+
+![](screenshot_2020-12-30.png)
