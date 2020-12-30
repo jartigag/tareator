@@ -23,7 +23,7 @@
 <body>
 <div class="container">
     <div class="example clearfix full-width">
-        <p>#Data1: Year > day view.</p>
+        <p>#Data-1a: Year > day view.</p>
 
         <div>
             <div id="example-d1"></div>
@@ -35,7 +35,7 @@ cal.init({
     itemSelector: "#example-d1",
     domain: "year",
     subDomain: "day",
-    data: "data1.json",
+    data: "data1a.json",
     start: new Date(2020, 0),
     cellSize: 10,
     range: 1,
@@ -47,7 +47,39 @@ cal.init({
     </div>
 
     <div class="example clearfix full-width">
-        <p>#Data2: Week > day view.</p>
+        <p>#Data-1b(-/+): Year > day view.</p>
+
+        <div>
+            <div id="example-d2"></div>
+            <p></p>
+            <style>
+                #example-d2 .q1 {fill:#ad001d; opacity: 0.8}
+                #example-d2 .q2 {fill:#ad001d; opacity: 0.4}
+                #example-d2 .q3 {fill:#ad001d; opacity: 0.1} /*.grap-rect: #35252d*/
+                #example-d2 .q4 {fill:#232181; opacity: 0.3}
+                #example-d2 .q5 {fill:#232181; opacity: 0.5}
+                #example-d2 .q6 {fill:#232181; opacity: 0.7}
+            </style>
+            <script>
+                (function() {
+var cal = new CalHeatMap();
+cal.init({
+    itemSelector: "#example-d2",
+    domain: "year",
+    subDomain: "day",
+    data: "data1b.json",
+    start: new Date(2020, 0),
+    cellSize: 10,
+    range: 1,
+    legend: [-5, -2, 0, 0, 2, 5]
+});
+                })();
+            </script>
+        </div>
+    </div>
+
+    <div class="example clearfix full-width">
+        <p>#Data-2: Week > day view.</p>
 
         <p>Hover on a subDomain cell to view the date</p>
 
@@ -94,7 +126,7 @@ cal.init({
         return moment(date).format("MMMM").toUpperCase();
     },
     subDomainTextFormat: "%d",
-    legend: [4, 8, 12, 16]
+    legend: [2, 5, 8, 11]
 });
                 })();
             </script>
