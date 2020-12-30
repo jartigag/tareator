@@ -2,9 +2,19 @@ import csv
 from os import system
 from .timetracker import edit_commit
 from .tasks_utils import bold, red, green
-from .tasks_utils import reload_screen, write_tasks_file
 
-def parse_commands(opt, now, marks, tasks, tasks_file, register_file, publisher_function):
+commands_list = ["/registro", "/commit", "/intervalos", "/clear", "/deshacer"]
+
+publisher_function = 'register2shptime'
+
+timetracker_commands = f"""
+{bold('/registro')}                   imprime las acciones registradas desde el último commit
+{bold('/commit')}                     revisa y publica las últimas tareas con {publisher_function}
+{bold('/intervalos')}                 edita los intervalos por defecto de tu jornada laboral
+{bold('/clear')}                      elimina de la lista las tareas completadas
+{bold('/deshacer')}                   elimina la última acción del registro de acciones"""
+
+def parse_commands(opt, now, t, register_file):
     if opt=="/commit":
         edit_commit( now, register_file, publisher_function )
     elif opt=="/intervalos":
@@ -12,10 +22,9 @@ def parse_commands(opt, now, marks, tasks, tasks_file, register_file, publisher_
     elif opt=="/registro":
         print_register( register_file )
     elif opt=="/clear":
-        clear_dones(marks, tasks, tasks_file)
+        clear_dones(t)
     elif opt=="/deshacer":
         undo( register_file )
-    return opt
 
 def print_register(register_file):
     printable = []
@@ -31,14 +40,14 @@ def print_register(register_file):
     for p in reversed(printable): # printing in chronological order (from oldest to newest)
         print(p)
 
-def clear_dones(marks, tasks, tasks_file):
-    with open(tasks_file) as readf, open(f"{tasks_file}.tmp","w") as writef:
+def clear_dones(t):
+    with open(t.tasks_file) as readf, open(f"{t.tasks_file}.tmp","w") as writef:
         for line in readf.readlines():
-            if not line.startswith(marks['done']):
+            if not line.startswith(t.marks['done']):
                 writef.write(line)
-    system(f'cat {tasks_file}.tmp > {tasks_file} && rm {tasks_file}.tmp') # to keep same inode (symbolic links)
-    write_tasks_file(tasks, marks, tasks_file) # to clear empty titles
-    reload_screen(tasks_file, marks)
+    system(f'cat {t.tasks_file}.tmp > {t.tasks_file} && rm {t.tasks_file}.tmp') # to keep same inode (symbolic links)
+    t.write_tasks_file() # to clear empty titles
+    t.read_tasks_file()
     print(f"{green('[+]')} has limpiado las tareas completadas")
 
 def undo(register_file):

@@ -15,6 +15,7 @@ tasks_file=\`readlink -f \${1:-'$default_tasks_file'}\`
 
 cd $(pwd)
 python3 -m tareator "\$tasks_file" "\${@:2}"
+#                                      ^^^ --silent flag
 EOF
 
 echo "Generating /usr/bin/tareator... (may ask for sudo password)"
@@ -24,3 +25,11 @@ sudo chmod +x /usr/bin/tareator
 
 # if external python libraries are needed in a future,
 # they can be easily virtualenv-ed here ( `python3 -m tareator "$@"` )
+
+#tip:
+# you may be interested in adding shorcuts like these to your .bash_aliases:
+#
+# alias tp='tareator ~/.tareator/tareas-personal.md'
+# alias tt='tareator ~/.tareator/tareas-trabajo.md'
+# alias tps='tareator ~/.tareator/tareas-personal.md -s'
+# alias tts='tareator ~/.tareator/tareas-trabajo.md -s'
