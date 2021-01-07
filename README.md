@@ -33,4 +33,4 @@
 ### Visualización
 - [ ] Demo mínima con cal-heatmap
 
-![](screenshot_2020-12-30.png)
+![](screenshot.png)
