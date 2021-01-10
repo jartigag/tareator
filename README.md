@@ -31,6 +31,6 @@
 - [x] --silent flag
 
 ### Visualización
-- [ ] Demo mínima con cal-heatmap
+- [x] Demo mínima con cal-heatmap
 
 ![](screenshot.png)

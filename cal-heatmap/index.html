@@ -23,30 +23,40 @@
 <body>
 <div class="container">
     <div class="example clearfix full-width">
-        <p>#Data-1a: Year > day view.</p>
+        <p>2020 (year > day view)</p>
 
         <div>
-            <div id="example-d1"></div>
+            <div id="d"></div>
             <p></p>
             <script>
                 (function() {
 var cal = new CalHeatMap();
 cal.init({
-    itemSelector: "#example-d1",
-    domain: "year",
-    subDomain: "day",
+    itemSelector: "#d",
     data: "data1a.json",
+    domain: "year", range: 1,
+    subDomain: "day",
     start: new Date(2020, 0),
     cellSize: 10,
-    range: 1,
-    legend: [4, 8, 12, 16]
+    legend: [4, 8, 12, 16],
+	onClick: function(date, nb) {
+		$("#onClick-placeholder").html("You just clicked on <br/><b>" +
+			date + "</b> <br/>with <b>" +
+			(nb === null ? "0" : nb) + "</b> items"
+		);
+	}
 });
                 })();
             </script>
         </div>
+        <div>
+            <br/>
+            <span id="onClick-placeholder">Click a date on the calendar</span>
+            <div class="source"></div>
+        </div>
     </div>
 
-    <div class="example clearfix full-width">
+    <!--div class="example clearfix full-width">
         <p>#Data-1b(-/+): Year > day view.</p>
 
         <div>
@@ -131,7 +141,7 @@ cal.init({
                 })();
             </script>
         </div>
-    </div>
+    </div-->
 
 </div>
 
