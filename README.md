@@ -14,12 +14,11 @@ Se ha orientado a que, de su uso cotidiano, se extraigan los datos necesarios pa
 
 Además, produce un fichero CSV en el que se registra cuándo se ha realizado cada acción. Sobre él se podrán hacer análisis posteriores con otras herramientas.
 
-Se hace una explicación un poco más desarrollada en [este post](https://jartigag.github.io/tareator).
+Se hace una explicación un poco más desarrollada en [este post](https://jartigag.xyz/tareator).
 
 # tareator
 
 ## v1.0
-
 - [x] Elegir nombre
 
 ### Funcionalidades básicas
@@ -48,3 +47,8 @@ Se hace una explicación un poco más desarrollada en [este post](https://jartig
 - [x] e (abrir `tareas.md` en editor)
 - [x] r (abrir `register.csv` en editor)
 - [x] --silent flag
+
+### Visualización
+- [x] Demo mínima con cal-heatmap
+
+![](screenshot.png)
