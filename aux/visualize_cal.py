@@ -28,6 +28,10 @@ if __name__ == "__main__":
         print(f"Serving on http://{LISTEN[0]}:{LISTEN[1]}")
         httpd.serve_forever()
 
+    except KeyboardInterrupt:
+        pass
     except Exception as e:
         #TODO: handle exceptions
         print(f"ERROR\n{traceback.format_exc()}",file=sys.stderr)
+    finally:
+        httpd.server_close()
