@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-__version__ = "1.2"
+__version__ = "1.3"
 __author__ = "@jartigag"
 __url__ = "https://github.com/jartigag/tareator"
 
@@ -21,13 +21,20 @@ from .tasks_utils import basic_taskscommands, advanced_taskscommands
 tasks_file = sys.argv[1] if len(sys.argv)>1 else 'README.md'
 register_file = path.join( path.dirname(tasks_file), 'register{}.csv'.format( '' if len(sys.argv)==1 else '.'+path.splitext(path.basename(tasks_file))[0]) )
 
-def init(silent_flag=False):
+def init(silent_flag=False, publisher_function='register2shptime'):
     open(tasks_file,'a+').close() # touch
     open(register_file,'a+').close() # touch
 
     if len(sys.argv)>2:
         if sys.argv[2] in ("-s","--silent"):
             silent_flag = True
+        if sys.argv[2]=='register2echo':
+            publisher_function = 'register2echo'
+        if len(sys.argv)>3:
+            if sys.argv[3] in ("-s","--silent"):
+                silent_flag = True
+            if sys.argv[3]=='register2echo':
+                publisher_function = 'register2echo'
 
     now = datetime.now().replace(microsecond=0)
     if not silent_flag:
@@ -47,16 +54,18 @@ def init(silent_flag=False):
         'to-do': symbol.replace('x',' ')
     }
 
-    return marks, silent_flag
+    return marks, silent_flag, publisher_function
 
-help_msg = f"""la herramienta "tareator" responde interactivamente a lo que escribas. por ejemplo:
+def help_msg(publisher_function):
+    print(f"""la herramienta "tareator" responde interactivamente a lo que escribas. por ejemplo:
 {basic_taskscommands}
-{timetracker_commands}
+{timetracker_commands(publisher_function)}
 
 escribe 'hh' para mostrar la ayuda más detallada.
-"""
+""")
 
-hhelp_msg = f"""
+def hhelp_msg(publisher_function):
+    print(f"""
 tareator v{__version__}, de {__author__} ({__url__})
 -----
 
@@ -91,10 +100,10 @@ tareas.md). por lo demás, funcionan igual.
 
 == COMANDOS BÁSICOS DE TAREAS:{basic_taskscommands}
 
-== COMANDOS DE TIMETRACKER:{timetracker_commands}
+== COMANDOS DE TIMETRACKER:{timetracker_commands(publisher_function)}
 
 == COMANDOS AVANZADOS DE TAREAS:{advanced_taskscommands}
-"""
+""")
 
 def write_register_file(action, dtime):
     with open(register_file,"a",newline='') as f: # if newline='' is not specified, newlines embedded inside quoted fields will not be interpreted correctly [..]
@@ -142,7 +151,7 @@ def parse_chars(opt, t):
     return action
 
 if __name__ == '__main__':
-    marks, silent_flag = init()
+    marks, silent_flag, publisher_function = init()
     t = Tasks(tasks_file, marks)
     while True:
         print(f"{bold('qué estás haciendo?')} ('h' para mostrar la ayuda, Intro para recargar)")
@@ -158,12 +167,12 @@ if __name__ == '__main__':
                 t.read_tasks_file()
                 print(f"{bold('qué estás haciendo?')} ('h' para mostrar la ayuda, Intro para recargar)")
                 print(">> h")
-                print(help_msg)
+                help_msg(publisher_function)
             elif opt=="hh":
                 t.read_tasks_file()
                 print(f"{bold('qué estás haciendo?')} ('h' para mostrar la ayuda, Intro para recargar)")
                 print(">> hh")
-                print(hhelp_msg)
+                hhelp_msg(publisher_function)
             elif opt=="e":
                 system(f"editor {tasks_file}")
             elif opt=="r":
@@ -174,7 +183,7 @@ if __name__ == '__main__':
                 else:
                     print(f"{red('[!]')} número inválido")
             elif opt in commands_list:
-                parse_commands(opt, now, t, register_file)
+                parse_commands(opt, now, t, register_file, publisher_function)
             elif len(opt)>1:
                 action = parse_chars(opt, t)
             else:
