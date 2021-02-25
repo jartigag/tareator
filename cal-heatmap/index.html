@@ -23,7 +23,7 @@
 <body>
 <div class="container">
     <div class="example clearfix full-width">
-        <p>2020 (year > day view)</p>
+        <p>2021 (year > day view)</p>
 
         <div>
             <div id="d"></div>
@@ -33,10 +33,10 @@
 var cal = new CalHeatMap();
 cal.init({
     itemSelector: "#d",
-    data: "data1a.json",
+    data: "mydata.json",
     domain: "year", range: 1,
     subDomain: "day",
-    start: new Date(2020, 0),
+    start: new Date(2021, 0),
     cellSize: 10,
     legend: [4, 8, 12, 16],
 	onClick: function(date, nb) {

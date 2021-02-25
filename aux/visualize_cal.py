@@ -17,9 +17,10 @@ if __name__ == "__main__":
 
             #tstamps = { int(datetime.fromisoformat(line.split(',')[0]).timestamp()): 1 if line.split(',')[1]=="Project A" else -1 for line in open(sys.argv[1]).readlines() }
 
-
             with open(f"cal-heatmap/data-{os.path.basename(arg)}.json", "w") as f:
                 json.dump(tstamps, f, indent=2)
+
+            os.system(f'sed -i "s/mydata.json/data-{os.path.basename(arg)}.json/g" cal-heatmap/index.html')
 
         os.chdir('cal-heatmap')
 
